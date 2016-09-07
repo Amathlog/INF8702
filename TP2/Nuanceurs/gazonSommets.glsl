@@ -110,7 +110,7 @@ void spotLight(in vec3 lightVect, in vec3 normal)
    // Le fragment est-il à l'intérieur du cône de lumière ?
    vec3 spotDir = Lights[1].SpotDir;
    vec3 lightDir = VP;
-   angleEntreLumEtSpot = acos(dot(lightDir, -spotDir));
+   angleEntreLumEtSpot = acos(dot(lightDir, -spotDir)) * 180.0 / 3.14159265359;
 
    if (angleEntreLumEtSpot > Lights[1].SpotCutoff)
    {
