@@ -499,24 +499,27 @@ void dessinerSkybox()
 {
 
 	// Ajouter une modification dans la matrice Modèle pour éliminer les artéfacts de perspectives.
-	// ...
 	progNuanceurSkybox.activer();
 
 	glm::vec3 s(CCst::grandeurSkybox, CCst::grandeurSkybox, CCst::grandeurSkybox);
 	glm::mat4 scalingMatrix = glm::scale(s);
 
-	// Effectuer la rotation pour être dans le même sense que le gazon et la caméra (Y+ = UP)
+	// Effectuer la rotation pour être dans le même sens que le gazon et la caméra (Y+ = UP)
 	glm::mat4 rotationMatrix;
 	glm::vec3 rotationAxis(1.0f, 0.0f, 0.0f);
 	float a = glm::radians(-90.f);
 	rotationMatrix = glm::rotate(a, rotationAxis);
+
+	//glm::mat4 translationMatrix = glm::translate(glm::vec3(CVar::x, CVar::y, CVar::z));
 
 	glm::mat4 translationMatrix = glm::translate(glm::vec3(0.0f,0.0f,0.0f));
 	
 	glm::mat4 modelMatrix = translationMatrix * rotationMatrix * scalingMatrix;
 
 	// Matrice Model-Vue-Projection:
-	glm::mat4 mvp = CVar::projection * CVar::vue * modelMatrix;
+	//En enlevant l'élément de translation dans la matrice vue, on règle la perspective.
+	//(Pour ce faire on cast notre matrice 4*4 en une matrice 3*3 et la faire revenir à une matrice 4*4)
+	glm::mat4 mvp = CVar::projection * glm::mat4(glm::mat3(CVar::vue)) * modelMatrix;
 
 	GLuint handle;
 
@@ -532,9 +535,10 @@ void dessinerScene()
 	// À compléter
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	
-	// Décommenter pour afficher!
-	// dessinerSkybox();
+	//2. Dessiner le skybox en arrière-plan
+	glDepthMask(GL_FALSE);
+	dessinerSkybox();
+	glDepthMask(GL_TRUE);
 
 	dessinerGazon();
 
