@@ -106,7 +106,7 @@ void CTexture2D::chargerTexture()
             free( TextureImage.data );
          }
       } else {
-         printf("Problème lors du chargement de %s !\n, nomFichier_");
+         printf("Problème lors du chargement de %s !\n", nomFichier_);
       }
    } else {
       if (!mipmap_) {
