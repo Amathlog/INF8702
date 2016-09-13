@@ -62,21 +62,82 @@ const float PI_INV = 1.0 / PI;        // Pi inversé
 // Calcul pour une lumière ponctuelle
 void pointLight(in int i, in vec3 normal, in vec3 eye, in vec3 csPosition3)
 {
-   // À compléter, inspirez vous du gazon!
+   float nDotVP;       // Produit scalaire entre VP et la normale
+   float attenuation;  // facteur d'atténuation calculé
+   float d;            // distance entre lumière et fragment
+   vec3  VP;           // Vecteur lumière
+
+   // Calculer vecteur lumière
+   VP = normalize(Lights[i].Position.xyz - csPosition3);
+
+   // Calculer distance à la lumière
+   d = length(Lights[i].Position.xyz - csPosition3);
+
+   // Calculer l'atténuation due à la distance
+   attenuation = 1.0 / (Lights[i].Attenuation[0] + Lights[i].Attenuation[1] * d + Lights[i].Attenuation[2] * d*d);
+   
+   nDotVP = dot(VP, normal);
+
+   // Calculer les contributions ambiantes et diffuses
+   Ambient += vec4(Lights[i].Ambient * attenuation, 1.0);
+   Diffuse += vec4(Lights[i].Diffuse * nDotVP * attenuation, 1.0);
 }
 
 
 // Calcul pour une lumière "spot"
 void spotLight(in int i, in vec3 normal, in vec3 eye, in vec3 csPosition3)
 {
-    // À compléter, inspirez vous du gazon!
+   float nDotVP;             // Produit scalaire entre VP et la normale
+   float spotAttenuation;    // Facteur d'atténuation du spot
+   float attenuation;        // Facteur d'atténuation du à la distance
+   float angleEntreLumEtSpot;// Angle entre le rayon lumieux et le milieu du cone
+   float d;                  // Distance à la lumière
+   vec3  VP;                 // Vecteur lumière
+
+	// Calculer vecteur lumière
+   VP = normalize(Lights[i].Position.xyz - csPosition3);
+
+   // Calculer distance à la lumière
+   d = length(Lights[i].Position.xyz - csPosition3);
+
+   // Calculer l'atténuation due à la distance
+   attenuation = 1.0 / (Lights[i].Attenuation[0] + Lights[i].Attenuation[1] * d + Lights[i].Attenuation[2] * d*d);
+
+   // Le fragment est-il à l'intérieur du cône de lumière ?
+   vec3 spotDir = normalize(Lights[i].SpotDir);
+   vec3 lightDir = VP;
+   angleEntreLumEtSpot = acos(dot(lightDir, -spotDir)) * 180.0 / 3.14159265359;
+
+   if (angleEntreLumEtSpot > Lights[i].SpotCutoff){
+       spotAttenuation = 0.0; // en dehors... aucune contribution
+   } else {
+	   spotAttenuation = pow(angleEntreLumEtSpot, Lights[i].SpotExp);
+   }
+
+   // Combine les atténuation du spot et de la distance
+   attenuation *= spotAttenuation;
+
+   nDotVP = dot(VP, normal);
+
+   // Calculer les contributions ambiantes et diffuses
+   Ambient  += vec4(Lights[i].Ambient * attenuation, 1.0);
+   Diffuse  += vec4(Lights[i].Diffuse * nDotVP * attenuation, 1.0);
 }
 
 
 // Calcul pour une lumière directionnelle
 void directionalLight(in int i, in vec3 normal)
 {
-   // À compléter, inspirez vous du gazon!
+   vec3  VP;             // Vecteur lumière
+   float nDotVP;         // Produit scalaire entre VP et la normale
+
+   VP = normalize(-Lights[i].Position.xyz);
+
+   nDotVP = dot(VP, normal);
+
+   // Calculer les contributions ambiantes et diffuses
+   Ambient += vec4(Lights[i].Ambient, 1.0);
+   Diffuse += vec4(Lights[i].Diffuse * nDotVP, 1.0);
 }
 
 // éclairage pour la surface du dessus
@@ -90,17 +151,17 @@ void frontLighting(in vec3 normal, in vec3 csPosition)
    Diffuse  = vec4 (0.0, 0.0, 0.0, 1.0);
 
    // Calcul des 3 lumières
-   // if (pointLightOn == 1) {
-   //    pointLight(0, normal, eye, csPosition);
-   // }
-   // 
-   // if (dirLightOn == 1) {
-   //      directionalLight(2, normal);
-   // }
-   // 
-   // if (spotLightOn == 1) {
-   //    spotLight(1, normal, eye, csPosition);
-   // }
+   if (pointLightOn == 1) {
+      pointLight(0, normal, eye, csPosition);
+   }
+   
+   if (dirLightOn == 1) {
+        directionalLight(2, normal);
+   }
+   
+   if (spotLightOn == 1) {
+      spotLight(1, normal, eye, csPosition);
+   }
 
    color = Ambient  * frontMat.Ambient + Diffuse  * frontMat.Diffuse;
    color = clamp( color, 0.0, 1.0 );
@@ -119,17 +180,17 @@ void backLighting(in vec3 invNormal, in vec3 csPosition)
    Diffuse  = vec4 (0.0);
 
    // Calcul des 3 lumières
-   // if (pointLightOn == 1) {
-   //   pointLight(0, invNormal, eye, csPosition);
-   // }
-   //
-   // if (dirLightOn == 1) {
-   //   directionalLight(2, invNormal);
-   // }
-   //
-   // if (spotLightOn == 1) {
-   //    spotLight(1, invNormal, eye, csPosition);
-   // }
+   if (pointLightOn == 1) {
+    pointLight(0, invNormal, eye, csPosition);
+   }
+   
+   if (dirLightOn == 1) {
+     directionalLight(2, invNormal);
+   }
+  
+   if (spotLightOn == 1) {
+      spotLight(1, invNormal, eye, csPosition);
+   }
 
    color = Ambient  * backMat.Ambient + Diffuse * backMat.Diffuse;
    color = clamp( color, 0.0, 1.0 );
@@ -207,22 +268,24 @@ void tsTransform(in vec3 csNormal, vec3 csTangent, vec3 csPosition)
     // qui vous aidera à structurer votre solution.
 
     // Calcul de la binormale
-    // vec3 ecBinormal = ...
+    vec3 ecBinormal = cross(csTangent, csNormal);
 
     // Construction de la matrice de transformation pour passer en espace tangent
-    // mat3 tsMatrix = mat3(...);
+    mat3 tsMatrix = mat3(csTangent.x, ecBinormal.x, csNormal.x,
+						 csTangent.y, ecBinormal.y, csNormal.y,
+						 csTangent.z, ecBinormal.z, csNormal.z);
 
     // Construction et calcul des vecteurs pertinants
     // Nous sommes en coordonnées de visualisation
-    // vec3 EyeDir    = ... 
-    // Light0HV  = ... en fonction de EyeDir et ...
-    // Light1HV  = ... 
-    // Light2HV  = ... en fonction de EyeDir et ...
+    vec3 EyeDir = normalize(-csPosition);
+    Light0HV  = normalize(normalize(Lights[0].Position.xyz - csPosition) + EyeDir);
+    Light1HV  = normalize(normalize(Lights[1].Position.xyz - csPosition) + EyeDir); 
+    Light2HV  = normalize(normalize(-Lights[2].Position.xyz) + EyeDir);
 
     // Transformation dans l'espace tangent (on applique la matrice tsMatrix)
-    // Light0HV  = ...
-    // Light1HV  = ...
-    // Light2HV  = ...
+    Light0HV  = tsMatrix * Light0HV;
+    Light1HV  = tsMatrix * Light1HV;
+    Light2HV  = tsMatrix * Light2HV;
    
 }
 
