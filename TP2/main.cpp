@@ -125,16 +125,16 @@ int main(int argc,char *argv[])
 	
 	// vérification de la version 4.X d'openGL
 	glewInit();
-	if (glewIsSupported("GL_VERSION_4_5"))
-		printf("Pret pour OpenGL 4.5\n\n");
+	if (glewIsSupported("GL_VERSION_4_4"))
+		printf("Pret pour OpenGL 4.4\n\n");
 	else {
-		printf("\nOpenGL 4.5 n'est pas supporte! \n");
+		printf("\nOpenGL 4.4 n'est pas supporte! \n");
 		exit(1);
 	}
 
 	// Specifier le context openGL
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 
