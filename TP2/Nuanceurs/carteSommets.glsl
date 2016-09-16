@@ -237,27 +237,27 @@ void animation(inout vec4 position, inout vec3 normal, inout vec3 tangent)
         // Déformation sur l'axe des X selon la position X
 		// TODO: 
 		// Remplacer le commentaire ci-bas par la valeur de position necessaire
-        deltaPos = amplitude * sin(/*position X * */ PI);
+        deltaPos = amplitude * sin(vt.x * PI);
 		theta = 0.5 * (vt.x - 0.5) * PI * sin(-amplitude);
 		 // TODO:
-		 //rotMat= ...
+		rotMat= rotMatY(theta);
     } else {
         // Déformation sur l'axe des Y, selon la position Y
 		// TODO: 
 		// Remplacer le commentaire ci-bas par la valeur de position necessaire
-        deltaPos = amplitude * sin(/*position Y * */ PI);
+        deltaPos = amplitude * sin(vt.y *  PI);
 		float theta = 0.5 * (vt.y - 0.5) * PI * sin(amplitude);
 		 // TODO:
-		//rotMat = ...
+		rotMat= rotMatX(theta);
     }
     // TODO:
     // Obtenir le déplacement du sommets en cours
-    // position = ..
+   position.z += deltaPos;
 
     // TODO:
     // Trouver les nouvelles normale + tangente après déplacement du sommet
-    // normal = ...
-    // tangent = ...
+    normal = rotMat * normal;
+    tangent = rotMat * tangent;
 }
 
 // Transformation des coordonnées d'espace tangent
@@ -306,9 +306,9 @@ void main () {
    fragTexCoord = vt;
    
    // Transformation du vertex selon le temps
-   // if (animOn == 1) {
-   //   animate(position, normal, tangent);
-   // }
+   if (animOn == 1) {
+     animation(position, normal, tangent);
+   }
    
     //On passe au référenciel de caméra (ou eye-coordinate)
     VertexPosition_cameraSpace = ( V * M * position).xyz;
