@@ -76,7 +76,7 @@ void pointLight(in int i, in vec3 normal, in vec3 eye, in vec3 csPosition3)
    // Calculer l'atténuation due à la distance
    attenuation = 1.0 / (Lights[i].Attenuation[0] + Lights[i].Attenuation[1] * d + Lights[i].Attenuation[2] * d*d);
    
-   nDotVP = dot(VP, normal);
+   nDotVP = max(0.0, dot(VP, normal));
 
    // Calculer les contributions ambiantes et diffuses
    Ambient += vec4(Lights[i].Ambient * attenuation, 1.0);
@@ -117,7 +117,7 @@ void spotLight(in int i, in vec3 normal, in vec3 eye, in vec3 csPosition3)
    // Combine les atténuation du spot et de la distance
    attenuation *= spotAttenuation;
 
-   nDotVP = dot(VP, normal);
+   nDotVP = max(0.0, dot(VP, normal));
 
    // Calculer les contributions ambiantes et diffuses
    Ambient  += vec4(Lights[i].Ambient * attenuation, 1.0);
@@ -133,7 +133,7 @@ void directionalLight(in int i, in vec3 normal)
 
    VP = normalize(-Lights[i].Position.xyz);
 
-   nDotVP = dot(VP, normal);
+   nDotVP = max(0.0, dot(VP, normal));
 
    // Calculer les contributions ambiantes et diffuses
    Ambient += vec4(Lights[i].Ambient, 1.0);
@@ -176,8 +176,8 @@ void backLighting(in vec3 invNormal, in vec3 csPosition)
    const vec3 eye = normalize(-csPosition);
 
    // Clear the light intensity accumulators
-   Ambient  = vec4 (0.0);
-   Diffuse  = vec4 (0.0);
+   Ambient  = vec4 (0.0, 0.0, 0.0, 1.0);
+   Diffuse  = vec4 (0.0, 0.0, 0.0, 1.0);
 
    // Calcul des 3 lumières
    if (pointLightOn == 1) {
@@ -303,7 +303,7 @@ void main () {
    vec3 Tangent_cameraSpace; 
   
    // Pasage des coordonées des textures
-   // fragTexCoord = ...
+   fragTexCoord = vt;
    
    // Transformation du vertex selon le temps
    // if (animOn == 1) {
