@@ -1,23 +1,24 @@
 #version 430 core
+
 struct Light
 {
-        vec3 Ambient; 
-        vec3 Diffuse;
-        vec3 Specular;
-        vec4 Position;  // Si .w = 1.0 -> Direction de lumiere directionelle.
-        vec3 SpotDir;
-        float SpotExp;
-        float SpotCutoff;
-        vec3 Attenuation; //Constante, Lineraire, Quadratique
+    vec3 Ambient; 
+    vec3 Diffuse;
+    vec3 Specular;
+    vec4 Position;  // Si .w = 1.0 -> Direction de lumiere directionelle.
+    vec3 SpotDir;
+    float SpotExp;
+    float SpotCutoff;
+    vec3 Attenuation; //Constante, Lineraire, Quadratique
 };
 
 struct Mat
 {
-        vec4 Ambient; 
-        vec4 Diffuse;
-        vec4 Specular;
-        vec4 Exponent;
-        float Shininess;
+    vec4 Ambient; 
+    vec4 Diffuse;
+    vec4 Specular;
+    vec4 Exponent;
+    float Shininess;
 };
 
 layout(location = 0) in vec2 vt;
