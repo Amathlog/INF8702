@@ -653,6 +653,28 @@ void CScene::LancerRayons( void )
 	//      }
 	//  }
 
+	for (int y = 0;y < m_ResHauteur;y++) {
+		for (int x = 0;x < m_ResLargeur;x++) {
+			CRayon rayon;
+			rayon.AjusterOrigine(m_Camera.Position);
+			CVecteur3 direction{ (RENDRE_REEL(x)- m_ResLargeur /2)- rayon.ObtenirOrigine().x,(RENDRE_REEL(y)- m_ResHauteur /2)-rayon.ObtenirOrigine().y ,m_Camera.Focale };
+			direction = CVecteur3::Normaliser(direction*m_Camera.Orientation);
+			rayon.AjusterDirection(direction);
+
+
+
+			rayon.AjusterEnergie(1);
+			rayon.AjusterNbRebonds(0);
+			rayon.AjusterIndiceRefraction(1);
+
+			CCouleur couleur = ObtenirCouleur(rayon);
+			int index = (y*m_ResLargeur + x)*3;
+			m_InfoPixel[index] = couleur.r;
+			m_InfoPixel[index+1] = couleur.g;
+			m_InfoPixel[index+2] = couleur.b;
+		}
+	}
+
 	// Créer une texture openGL
 	glGenTextures(1, &m_TextureScene);
 	glBindTexture(GL_TEXTURE_2D, m_TextureScene);
