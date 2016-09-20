@@ -2,23 +2,23 @@
 
 struct Light
 {
-        vec3 Ambient; 
-        vec3 Diffuse;
-        vec3 Specular;
-        vec4 Position;  // Si .w = 1.0 -> Direction de lumiere directionelle.
-        vec3 SpotDir;
-        float SpotExp;
-        float SpotCutoff;
-        vec3 Attenuation; //Constante, Lineraire, Quadratique
+    vec3 Ambient; 
+    vec3 Diffuse;
+    vec3 Specular;
+    vec4 Position;  // Si .w = 1.0 -> Direction de lumiere directionelle.
+    vec3 SpotDir;
+    float SpotExp;
+    float SpotCutoff;
+    vec3 Attenuation; // Constante, Lineraire, Quadratique
 };
 
 struct Mat
 {
-        vec4 Ambient; 
-        vec4 Diffuse;
-        vec4 Specular;
-        vec4 Exponent;
-        float Shininess;
+    vec4 Ambient; 
+    vec4 Diffuse;
+    vec4 Specular;
+    vec4 Exponent;
+    float Shininess;
 };
 
 in float fragFogCoord;
@@ -50,7 +50,6 @@ uniform sampler2D normalMap;      // Unité de texture pour le bruit
 // Calcule la spécularité d'une source lumineuse
 vec4 lightSpec(in int i, in vec3 normal, in vec3 halfVector, in float shininess)
 {
-    // À compléter
     float spec = max(0.0, dot(normal, halfVector));
 	spec = pow(spec, shininess);
     return vec4(spec * Lights[i].Specular, 1.0);
@@ -72,31 +71,29 @@ void main (void)
     {	
         frontColor = frontFragColor;
         // Sampling de la texture
-        // ...
+        frontColor *= texture(frontColorMap, fragTexCoord);
         
         // Propriétés de la surface
         matSpecular  = frontMat.Specular;
         matShininess = frontMat.Shininess;
 
         // Échantillonnage du bruit de perlin
-        // noise = ...
+        noise = texture(normalMap, fragTexCoord).rgb;
 
         // Perturbation de la normale
-        /*
         if (perlinOn == 1) {
-            // normal = ...
+            normal = normalize(noise);
         } else {
-            // normal = ...
+            normal = vec3(0.0, 0.0, 1.0);
         }
-        */
-        normal = vec3(0.0, 0.0, 1.0);
+        
         trueColor = frontColor;
     }
     else
     {
         backColor = backFragColor;
         // Sampling de la texture
-        // ...
+        backColor *= texture(backColorMap, vec2(1.0 - fragTexCoord.x, fragTexCoord.y)); 
 
         // Propriétés de la surface
         matSpecular  = backMat.Specular;
@@ -109,8 +106,6 @@ void main (void)
     // Calcul du facteur spéculaire selon la lumière (allumée ou non)
     vec4 specular = vec4(0.0, 0.0, 0.0, 1.0);
 
-    // À dé-commenter
-    
     if (pointLightOn == 1) {
         specular +=  lightSpec(0, normal, Light0HV, 400.0);
     }
