@@ -167,7 +167,7 @@ CIntersection CQuadrique::Intersection( const CRayon& Rayon )
 	REAL y0 = Rayon.ObtenirOrigine().y;
 	REAL z0 = Rayon.ObtenirOrigine().z;
 
-	CVecteur3 direction = CVecteur3::Normaliser(Rayon.ObtenirDirection());
+	CVecteur3 direction = Rayon.ObtenirDirection();
 	REAL xd = direction.x;
 	REAL yd = direction.y;
 	REAL zd = direction.z;
@@ -186,16 +186,15 @@ CIntersection CQuadrique::Intersection( const CRayon& Rayon )
 
 	// Coefficients d'intersection
 	REAL aq = A*xd*xd + RENDRE_REEL(2.0) * B*xd*yd + RENDRE_REEL(2.0) * C*xd*zd + E*yd*yd + RENDRE_REEL(2.0) * F*yd*zd + H*zd*zd;
-	REAL bq = A*x0*xd + B*(x0*yd + xd*y0) + C*(x0*zd + xd*z0) + D*xd + E*y0*yd + F*(y0*zd + yd*z0) + G*yd + H*z0*zd + I*zd;
-	bq *= RENDRE_REEL(2.0);
-	REAL cq = A * x0*x0 + RENDRE_REEL(2.0) * B*x0*y0 + RENDRE_REEL(2.0) * C*x0*z0 + RENDRE_REEL(2.0) * D*x0 + E*y0*y0 + RENDRE_REEL(2.0) * F*y0*z0 + RENDRE_REEL(2.0) * G*y0 + H*z0*z0 + RENDRE_REEL(2.0) * I*z0 + J;
+	REAL bq = RENDRE_REEL(2.0) * A*x0*xd + RENDRE_REEL(2.0) * B*(x0*yd + xd*y0) + RENDRE_REEL(2.0) * C*(x0*zd + xd*z0) + D*xd + RENDRE_REEL(2.0) * E*y0*yd + RENDRE_REEL(2.0) * F*(y0*zd + yd*z0) + G*yd + RENDRE_REEL(2.0) * H*z0*zd + I*zd;
+	REAL cq = A * x0*x0 + RENDRE_REEL(2.0) * B*x0*y0 + RENDRE_REEL(2.0) * C*x0*z0 + D*x0 + E*y0*y0 + RENDRE_REEL(2.0) * F*y0*z0 + G*y0 + H*z0*z0 + I*z0 + J;
 
 	REAL t0;
 	if (aq == RENDRE_REEL(0.0)) {
 		t0 = -cq / bq;
 	} else {
 		// Discriminant
-		REAL delta = bq*bq - 4 * aq * cq;
+		REAL delta = bq*bq - RENDRE_REEL(4.0) * aq * cq;
 		if (delta < RENDRE_REEL(0.0)) {
 			// Pas d'intersection
 			return Result;
@@ -219,9 +218,9 @@ CIntersection CQuadrique::Intersection( const CRayon& Rayon )
 
 	// Point d'intersection et normale
 	CVecteur3 inter(Rayon.ObtenirOrigine() + t0 * Rayon.ObtenirDirection());
-	CVecteur3 normale(RENDRE_REEL(2.0) * (A * inter.x + B * inter.y + C * inter.z + D),
-		RENDRE_REEL(2.0) * (B * inter.x + E * inter.y + F * inter.z + G),
-		RENDRE_REEL(2.0) * (C * inter.x + F * inter.y + H * inter.z + I));
+	CVecteur3 normale(RENDRE_REEL(2.0) * (A * inter.x + B * inter.y + C * inter.z) + D,
+		RENDRE_REEL(2.0) * (B * inter.x + E * inter.y + F * inter.z) + G,
+		RENDRE_REEL(2.0) * (C * inter.x + F * inter.y + H * inter.z) + I);
 	normale = CVecteur3::Normaliser(normale);
 
 	Result.AjusterSurface(this);

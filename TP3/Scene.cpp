@@ -657,14 +657,14 @@ void CScene::LancerRayons( void )
 	REAL demi_hauteur = tan(RENDRE_REEL(PI) * m_Camera.Angle / RENDRE_REEL(180.0)) * distance;
 	REAL demi_largeur = m_ResLargeur * demi_hauteur / m_ResHauteur;
 
-	CVecteur3 towards = CVecteur3::Normaliser(m_Camera.PointVise - m_Camera.Position);
-	CVecteur3 up = m_Camera.Up;
-	CVecteur3 right = CVecteur3::Normaliser(CVecteur3::ProdVect(towards, up));
-	up = CVecteur3::Normaliser(CVecteur3::ProdVect(right, towards));
+	//CVecteur3 towards = CVecteur3::Normaliser(m_Camera.PointVise - m_Camera.Position);
+	//CVecteur3 up = m_Camera.Up;
+	//CVecteur3 right = CVecteur3::Normaliser(CVecteur3::ProdVect(towards, up));
+	//up = CVecteur3::Normaliser(CVecteur3::ProdVect(right, towards));
 
-	CVecteur3 incrX = 2 * right * demi_largeur / RENDRE_REEL(m_ResLargeur);
-	CVecteur3 incrY = 2 * up * demi_hauteur / RENDRE_REEL(m_ResHauteur);
-	CVecteur3 coinGaucheBas = m_Camera.PointVise - up*demi_hauteur - right*demi_largeur;
+	//CVecteur3 incrX = 2.0 * right * demi_largeur / RENDRE_REEL(m_ResLargeur);
+	//CVecteur3 incrY = 2.0 * up * demi_hauteur / RENDRE_REEL(m_ResHauteur);
+	//CVecteur3 coinGaucheBas = m_Camera.PointVise - up*demi_hauteur - right*demi_largeur;
 
 	for (int y = 0;y < m_ResHauteur;y++) {
 		for (int x = 0;x < m_ResLargeur;x++) {
@@ -677,8 +677,8 @@ void CScene::LancerRayons( void )
 			//CVecteur3 direction{ (2 * (RENDRE_REEL(x) + 0.5) / RENDRE_REEL(m_ResLargeur) - 1) * demi_largeur,-(1 - 2 * (RENDRE_REEL(y) + 0.5) / RENDRE_REEL(m_ResHauteur)) * demi_hauteur , -distance};
 			//direction = CVecteur3::Normaliser(CVecteur3::Normaliser(direction)*m_Camera.Orientation);
 			//CVecteur3 direction = CVecteur3::Normaliser(coinGaucheBas + x * incrX + y * incrY - m_Camera.Position);
-			CVecteur3 direction{ (RENDRE_REEL(x)/ m_ResLargeur - 0.5) * demi_largeur*2,(RENDRE_REEL(y) / m_ResHauteur -0.5) * demi_hauteur*2 ,-distance};
-			direction = CVecteur3::Normaliser(direction*m_Camera.Orientation);
+			CVecteur3 direction{ (RENDRE_REEL(x)/ m_ResLargeur - 0.5) * demi_largeur*2.0,(RENDRE_REEL(y) / m_ResHauteur -0.5) * demi_hauteur*2.0 ,-distance};
+			direction = CVecteur3::Normaliser(direction*m_Camera.Orientation - m_Camera.Position);
 
 			rayon.AjusterDirection(direction);
 

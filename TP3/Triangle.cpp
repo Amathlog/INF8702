@@ -125,7 +125,7 @@ void CTriangle::Pretraitement( void )
 ///  @date   13/08/2008
 ///
 ///////////////////////////////////////////////////////////////////////////////
-CIntersection CTriangle::Intersection( const CRayon& Rayon )
+CIntersection CTriangle::Intersection(const CRayon& Rayon)
 {
 	CIntersection Result;
 
@@ -142,7 +142,7 @@ CIntersection CTriangle::Intersection( const CRayon& Rayon )
 	CIntersection interPlan = planTriangle.Intersection(Rayon);
 
 	// S'il n'y a pas d'intersection, on sort
-	if (interPlan.ObtenirDistance() == -1.0)
+	if (interPlan.ObtenirDistance() < 0.0)
 		return Result;
 
 	// Calcul du point d'intersection P
@@ -150,7 +150,7 @@ CIntersection CTriangle::Intersection( const CRayon& Rayon )
 
 	// Calcul des coordonnées barycentriques, pour savoir si le point P est dans le triangle ABC
 	// On cherche la solution au systeme w = su + tv, avec w=AP u=AB v=AC et s,t deux réels
-	// Pour cela, on calcul le vecteur u' = n x u (produit vectoriel entre u et la normale au plan) et v' = n x v
+	// Pour cela, on calcule le vecteur u' = n x u (produit vectoriel entre u et la normale au plan) et v' = n x v
 	// D'où w.u' = su.u' + tv.u' = tv.u' (car u.u' = 0 car ils sont perpendiculaires).
 	// On obtient donc t = (w.u')/(v.u') = (w.(n x u))/(v.(n x u))
 	// De même s = (w.(n x v))/(u.(n x v))
