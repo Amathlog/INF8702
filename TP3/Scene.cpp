@@ -778,7 +778,11 @@ const CCouleur CScene::ObtenirCouleurSurIntersection( const CRayon& Rayon, const
 			Result += Intersection.ObtenirSurface()->ObtenirCouleur() * GouraudFactor * LumiereCouleur;
 
 			// À COMPLÉTER
-			// AJOUTER LA CONTRIBUTION SPÉCULAIRE DE PHONG...
+			CVecteur3 Reflechi = CVecteur3::Reflect(LumiereRayon.ObtenirDirection(), Intersection.ObtenirNormale());
+			REAL PhongFactor = (*uneLumiere)->GetIntensity() * Intersection.ObtenirSurface()->ObtenirCoeffSpeculaire() *
+				pow(CVecteur3::ProdScal(Reflechi, -Rayon.ObtenirDirection()), Intersection.ObtenirSurface()->ObtenirCoeffBrillance());
+			if(PhongFactor > 0.0)
+				Result += PhongFactor * LumiereCouleur;
 		}
 	}
 
