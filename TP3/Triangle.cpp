@@ -1,4 +1,5 @@
 #include "Triangle.h"
+#include "Plan.h"
 
 using namespace Scene;
 
@@ -128,14 +129,48 @@ CIntersection CTriangle::Intersection( const CRayon& Rayon )
 {
 	CIntersection Result;
 
-	// À COMPLÉTER ... 
+	// Calcul de l'équation du plan défini par le triangle ABC
+	// n = (A - C) x (B - C)
+	// cst = -(n.A)
+	CVecteur3 normale = m_Normale;
+	REAL cst = -CVecteur3::ProdScal(normale, m_Pts[0]);
+	CPlan planTriangle;
+	planTriangle.AjusterNormale(normale);
+	planTriangle.AjusterConstante(cst);
 
-	// Voici deux références pour acomplir le développement :
-	// 1) Tomas Akenine-Moller and Eric Haines "Real-Time Rendering 2nd Ed." 2002, p.581
-	// 2) Son article: http://www.graphics.cornell.edu/pubs/1997/MT97.pdf
+	// Résolution de l'intersection avec le plan
+	CIntersection interPlan = planTriangle.Intersection(Rayon);
 
-	// Notez que la normale du triangle est déjà calculée lors du prétraitement
-	// il suffit que de la passer à la structure d'intersection.
+	// S'il n'y a pas d'intersection, on sort
+	if (interPlan.ObtenirDistance() == -1.0)
+		return Result;
+
+	// Calcul du point d'intersection P
+	CVecteur3 ptInter = Rayon.ObtenirOrigine() + interPlan.ObtenirDistance() * Rayon.ObtenirDirection();
+
+	// Calcul des coordonnées barycentriques, pour savoir si le point P est dans le triangle ABC
+	// On cherche la solution au systeme w = su + tv, avec w=AP u=AB v=AC et s,t deux réels
+	// Pour cela, on calcul le vecteur u' = n x u (produit vectoriel entre u et la normale au plan) et v' = n x v
+	// D'où w.u' = su.u' + tv.u' = tv.u' (car u.u' = 0 car ils sont perpendiculaires).
+	// On obtient donc t = (w.u')/(v.u') = (w.(n x u))/(v.(n x u))
+	// De même s = (w.(n x v))/(u.(n x v))
+
+	CVecteur3 u = m_Pts[1] - m_Pts[0]; // Vecteur AB
+	CVecteur3 v = m_Pts[2] - m_Pts[0]; // Vecteur AC
+	CVecteur3 w = ptInter  - m_Pts[0]; // Vecteur AP
+
+	CVecteur3 uPrime = CVecteur3::ProdVect(normale, u);
+	CVecteur3 vPrime = CVecteur3::ProdVect(normale, v);
+
+	REAL s = CVecteur3::ProdScal(w, vPrime) / CVecteur3::ProdScal(u, vPrime);
+	REAL t = CVecteur3::ProdScal(w, uPrime) / CVecteur3::ProdScal(v, uPrime);
+
+	// Le point est à l'intérieur du triangle si s >= 0 && t >= 0 && s + t <= 1
+	if (s >= 0.0 && t >= 0.0 && s + t <= 1.0) {
+		Result.AjusterSurface(this);
+		Result.AjusterDistance(interPlan.ObtenirDistance());
+		Result.AjusterNormale(normale);
+	}
 
     return Result;
 }

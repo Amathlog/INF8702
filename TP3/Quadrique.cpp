@@ -143,6 +143,7 @@ void CQuadrique::Pretraitement( void )
 	m_Lineaire.x    = Q[ 0 ][ 3 ] * RENDRE_REEL( 2.0 );
 	m_Lineaire.y    = Q[ 1 ][ 3 ] * RENDRE_REEL( 2.0 );
     m_Lineaire.z    = Q[ 2 ][ 3 ] * RENDRE_REEL( 2.0 );
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -161,15 +162,72 @@ CIntersection CQuadrique::Intersection( const CRayon& Rayon )
 {
 	CIntersection Result;
 
-	// TODO: À COMPLÉTER ...
+	// Coefficients de notre rayon
+	REAL x0 = Rayon.ObtenirOrigine().x;
+	REAL y0 = Rayon.ObtenirOrigine().y;
+	REAL z0 = Rayon.ObtenirOrigine().z;
 
-	// La référence pour l'algorithme d'intersection des quadriques est : 
-	// Eric Haines, Paul Heckbert "An Introduction to Rayon Tracing",
-	// Academic Press, Edited by Andrw S. Glassner, pp.68-73 & 288-293
+	CVecteur3 direction = CVecteur3::Normaliser(Rayon.ObtenirDirection());
+	REAL xd = direction.x;
+	REAL yd = direction.y;
+	REAL zd = direction.z;
 
-	// S'il y a collision, ajuster les variables suivantes de la structure intersection :
-	// Normale, Surface intersectée et la distance
+	// Coefficients de la matrice
+	REAL A = m_Quadratique.x;
+	REAL E = m_Quadratique.y;
+	REAL H = m_Quadratique.z;
+	REAL B = m_Mixte.z;
+	REAL F = m_Mixte.x;
+	REAL C = m_Mixte.y;
+	REAL D = m_Lineaire.x;
+	REAL G = m_Lineaire.y;
+	REAL I = m_Lineaire.z;
+	REAL J = m_Cst;
 
+	// Coefficients d'intersection
+	REAL aq = A*xd*xd + RENDRE_REEL(2.0) * B*xd*yd + RENDRE_REEL(2.0) * C*xd*zd + E*yd*yd + RENDRE_REEL(2.0) * F*yd*zd + H*zd*zd;
+	REAL bq = A*x0*xd + B*(x0*yd + xd*y0) + C*(x0*zd + xd*z0) + D*xd + E*y0*yd + F*(y0*zd + yd*z0) + G*yd + H*z0*zd + I*zd;
+	bq *= RENDRE_REEL(2.0);
+	REAL cq = A * x0*x0 + RENDRE_REEL(2.0) * B*x0*y0 + RENDRE_REEL(2.0) * C*x0*z0 + RENDRE_REEL(2.0) * D*x0 + E*y0*y0 + RENDRE_REEL(2.0) * F*y0*z0 + RENDRE_REEL(2.0) * G*y0 + H*z0*z0 + RENDRE_REEL(2.0) * I*z0 + J;
+
+	REAL t0;
+	if (aq == RENDRE_REEL(0.0)) {
+		t0 = -cq / bq;
+	} else {
+		// Discriminant
+		REAL delta = bq*bq - 4 * aq * cq;
+		if (delta < RENDRE_REEL(0.0)) {
+			// Pas d'intersection
+			return Result;
+		}
+		REAL sqrtDelta = sqrt(delta);
+
+		// Calcul des racines
+		REAL t1;
+		t0 = (-bq + sqrtDelta) / (RENDRE_REEL(2.0) * aq);
+		t1 = (-bq - sqrtDelta) / (RENDRE_REEL(2.0) * aq);
+		if (t0 <= RENDRE_REEL(0.0) && t1 <= RENDRE_REEL(0.0)) {
+			return Result;
+		} else if (t0 <= RENDRE_REEL(0.0) && t1 > RENDRE_REEL(0.0)) {
+			t0 = t1;
+		} else if (t0 > RENDRE_REEL(0.0) && t1 <= RENDRE_REEL(0.0)) {
+			// t0 = t0
+		} else {
+			t0 = Min(t0, t1);
+		}
+	}
+
+	// Point d'intersection et normale
+	CVecteur3 inter(Rayon.ObtenirOrigine() + t0 * Rayon.ObtenirDirection());
+	CVecteur3 normale(RENDRE_REEL(2.0) * (A * inter.x + B * inter.y + C * inter.z + D),
+		RENDRE_REEL(2.0) * (B * inter.x + E * inter.y + F * inter.z + G),
+		RENDRE_REEL(2.0) * (C * inter.x + F * inter.y + H * inter.z + I));
+	normale = CVecteur3::Normaliser(normale);
+
+	Result.AjusterSurface(this);
+	Result.AjusterDistance(CVecteur3::Distance(inter, Rayon.ObtenirOrigine()));
+	Result.AjusterNormale((CVecteur3::ProdScal(normale, Rayon.ObtenirDirection()) > RENDRE_REEL(0.0)) ? -normale : normale);
+	
 	return Result;
 }
 
