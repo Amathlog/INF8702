@@ -174,24 +174,27 @@ CIntersection CQuadrique::Intersection( const CRayon& Rayon )
 
 	// Coefficients de la matrice
 	REAL A = m_Quadratique.x;
-	REAL E = m_Quadratique.y;
-	REAL H = m_Quadratique.z;
-	REAL B = m_Mixte.z;
-	REAL F = m_Mixte.x;
-	REAL C = m_Mixte.y;
-	REAL D = m_Lineaire.x;
-	REAL G = m_Lineaire.y;
+	REAL B = m_Quadratique.y;
+	REAL C = m_Quadratique.z;
+	REAL D = m_Mixte.x;
+	REAL E = m_Mixte.y;
+	REAL F = m_Mixte.z;
+	REAL G = m_Lineaire.x;
+	REAL H = m_Lineaire.y;
 	REAL I = m_Lineaire.z;
 	REAL J = m_Cst;
 
 	// Coefficients d'intersection
-	REAL aq = A*xd*xd + RENDRE_REEL(2.0) * B*xd*yd + RENDRE_REEL(2.0) * C*xd*zd + E*yd*yd + RENDRE_REEL(2.0) * F*yd*zd + H*zd*zd;
-	REAL bq = RENDRE_REEL(2.0) * A*x0*xd + RENDRE_REEL(2.0) * B*(x0*yd + xd*y0) + RENDRE_REEL(2.0) * C*(x0*zd + xd*z0) + D*xd + RENDRE_REEL(2.0) * E*y0*yd + RENDRE_REEL(2.0) * F*(y0*zd + yd*z0) + G*yd + RENDRE_REEL(2.0) * H*z0*zd + I*zd;
-	REAL cq = A * x0*x0 + RENDRE_REEL(2.0) * B*x0*y0 + RENDRE_REEL(2.0) * C*x0*z0 + D*x0 + E*y0*y0 + RENDRE_REEL(2.0) * F*y0*z0 + G*y0 + H*z0*z0 + I*z0 + J;
+	REAL aq = A*xd*xd + B*yd*yd + C*zd*zd + 
+		RENDRE_REEL(2.0) * (D*yd*zd + E*xd*zd + F*xd*yd);
+	REAL bq = RENDRE_REEL(2.0) * (A*x0*xd + B*y0*yd + C*zd*z0 + D*(y0*zd + z0*yd) + E*(x0*zd + z0*xd) + F*(x0*yd + y0*xd)) +
+		G*xd + H*yd + I*zd;
+	REAL cq = A*x0*x0 + B*y0*y0 + C*z0*z0 + RENDRE_REEL(2.0) * (D*y0*z0 + E*x0*z0 + F*x0*y0) +
+		G*x0 + H*y0 + I*z0 + J;
 
-	REAL t0;
+	REAL t;
 	if (aq == RENDRE_REEL(0.0)) {
-		t0 = -cq / bq;
+		t = -cq / bq;
 	} else {
 		// Discriminant
 		REAL delta = bq*bq - RENDRE_REEL(4.0) * aq * cq;
@@ -202,25 +205,26 @@ CIntersection CQuadrique::Intersection( const CRayon& Rayon )
 		REAL sqrtDelta = sqrt(delta);
 
 		// Calcul des racines
+		REAL t0;
 		REAL t1;
 		t0 = (-bq + sqrtDelta) / (RENDRE_REEL(2.0) * aq);
 		t1 = (-bq - sqrtDelta) / (RENDRE_REEL(2.0) * aq);
 		if (t0 <= RENDRE_REEL(0.0) && t1 <= RENDRE_REEL(0.0)) {
 			return Result;
 		} else if (t0 <= RENDRE_REEL(0.0) && t1 > RENDRE_REEL(0.0)) {
-			t0 = t1;
+			t = t1;
 		} else if (t0 > RENDRE_REEL(0.0) && t1 <= RENDRE_REEL(0.0)) {
-			// t0 = t0
+			t = t0;
 		} else {
-			t0 = Min(t0, t1);
+			t = Min(t0, t1);
 		}
 	}
 
 	// Point d'intersection et normale
-	CVecteur3 inter(Rayon.ObtenirOrigine() + t0 * Rayon.ObtenirDirection());
-	CVecteur3 normale(RENDRE_REEL(2.0) * (A * inter.x + B * inter.y + C * inter.z) + D,
-		RENDRE_REEL(2.0) * (B * inter.x + E * inter.y + F * inter.z) + G,
-		RENDRE_REEL(2.0) * (C * inter.x + F * inter.y + H * inter.z) + I);
+	CVecteur3 inter(Rayon.ObtenirOrigine() + t * Rayon.ObtenirDirection());
+	CVecteur3 normale(	RENDRE_REEL(2.0) * (A * inter.x + F * inter.y + E * inter.z) + G,
+						RENDRE_REEL(2.0) * (F * inter.x + B * inter.y + D * inter.z) + H,
+						RENDRE_REEL(2.0) * (E * inter.x + D * inter.y + C * inter.z) + I);
 	normale = CVecteur3::Normaliser(normale);
 
 	Result.AjusterSurface(this);

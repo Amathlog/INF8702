@@ -547,6 +547,10 @@ namespace Math3D
 	///////////////////////////////////////////////////////////////////////////////
 	inline const CVecteur3 CVecteur3::Reflect( const CVecteur3& Vecteur, const CVecteur3& Normal )
 	{
+		// Si le vecteur fait un angle supérieur à 90° avec la normale, il n'y a rien de réfléchi
+		if (CVecteur3::ProdScal(Vecteur, Normal) <= 0) {
+			return CVecteur3();
+		}
 		return RENDRE_REEL(2.0) * CVecteur3::ProdScal(Vecteur, Normal) * Normal - Vecteur;
 	}
 
