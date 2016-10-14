@@ -880,7 +880,7 @@ const CCouleur CScene::ObtenirFiltreDeSurface( CRayon& LumiereRayon ) const
 	{
 		Tmp = (*aSurface)->Intersection(LumiereRayon);
 		if (Tmp.ObtenirDistance() > EPSILON)
-			Filter *= (*aSurface)->ObtenirCoeffRefraction();
+			Filter *= (*aSurface)->ObtenirCouleur() * (*aSurface)->ObtenirCoeffRefraction();
 	}
 
 	return Filter;
