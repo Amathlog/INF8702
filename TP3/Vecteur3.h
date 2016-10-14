@@ -571,7 +571,13 @@ namespace Math3D
 	{
 		CVecteur3 Result;
 
-		// À COMPLÉTER ...
+		Result = IndiceRefractionRatio * (Vecteur - CVecteur3::ProdScal(Vecteur, Normal) * Normal);
+		Result = Result - sqrt(RENDRE_REEL(1.0) - CVecteur3::ProdScal(Result, Result)) * Normal;
+
+		// Reflexion totale, angle > 90° => Produit Scalaire négatif
+		if (CVecteur3::ProdScal(CVecteur3::Normaliser(Vecteur), CVecteur3::Normaliser(Result)) <= 0.0) {
+			return CVecteur3::Reflect(Vecteur, Normal);
+		}
 
 		return Result;
 	}

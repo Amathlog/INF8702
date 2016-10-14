@@ -216,7 +216,7 @@ CIntersection CQuadrique::Intersection( const CRayon& Rayon )
 		} else if (t0 > RENDRE_REEL(0.0) && t1 <= RENDRE_REEL(0.0)) {
 			t = t0;
 		} else {
-			t = Min(t0, t1);
+			t = Min<REAL>(t0, t1);
 		}
 	}
 
