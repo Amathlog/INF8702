@@ -761,7 +761,7 @@ const CCouleur CScene::ObtenirCouleurSurIntersection( const CRayon& Rayon, const
 	for( LumiereIterator uneLumiere = m_Lumieres.begin(); uneLumiere != m_Lumieres.end(); uneLumiere++ )
 	{
 		// Initialise le rayon de lumière (ou rayon d'ombre)
-		LumiereRayon.AjusterOrigine( IntersectionPoint );
+		LumiereRayon.AjusterOrigine( IntersectionPoint + 0.0001 * Intersection.ObtenirNormale());
 		LumiereRayon.AjusterDirection( ( *uneLumiere )->GetPosition() - IntersectionPoint );
 		LumiereRayon.AjusterEnergie( 1 );
 		LumiereRayon.AjusterIndiceRefraction( 1 );
@@ -778,11 +778,16 @@ const CCouleur CScene::ObtenirCouleurSurIntersection( const CRayon& Rayon, const
 			Result += Intersection.ObtenirSurface()->ObtenirCouleur() * GouraudFactor * LumiereCouleur;
 
 			// À COMPLÉTER
-			CVecteur3 Reflechi = CVecteur3::Reflect(LumiereRayon.ObtenirDirection(), Intersection.ObtenirNormale());
+			CVecteur3 Reflechi = CVecteur3::Normaliser(CVecteur3::Reflect(LumiereRayon.ObtenirDirection(), Intersection.ObtenirNormale()));
 			REAL PhongFactor = (*uneLumiere)->GetIntensity() * Intersection.ObtenirSurface()->ObtenirCoeffSpeculaire() *
 				pow(CVecteur3::ProdScal(Reflechi, -Rayon.ObtenirDirection()), Intersection.ObtenirSurface()->ObtenirCoeffBrillance());
-			if(PhongFactor > 0.0)
-				Result += PhongFactor * LumiereCouleur;
+			if (PhongFactor < 0.0)
+				PhongFactor = 0.0;
+			else if (PhongFactor > 1.0)
+				PhongFactor = 1.0;
+
+			Result += PhongFactor * LumiereCouleur;
+			
 		}
 	}
 
@@ -868,6 +873,15 @@ const CCouleur CScene::ObtenirFiltreDeSurface( CRayon& LumiereRayon ) const
 
 	// S'il y a une intersection appliquer la translucidité de la surface
 	// intersectée sur le filtre
+
+	CIntersection Tmp;
+
+	for (SurfaceIterator aSurface = m_Surfaces.begin(); aSurface != m_Surfaces.end(); aSurface++)
+	{
+		Tmp = (*aSurface)->Intersection(LumiereRayon);
+		if (Tmp.ObtenirDistance() > EPSILON)
+			Filter *= (*aSurface)->ObtenirCoeffRefraction();
+	}
 
 	return Filter;
 }
