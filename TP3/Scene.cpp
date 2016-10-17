@@ -833,7 +833,7 @@ const CCouleur CScene::ObtenirCouleurSurIntersection( const CRayon& Rayon, const
 		RefractedRayon.AjusterEnergie( RefractedRayonEnergy );
 		RefractedRayon.AjusterNbRebonds( Rayon.ObtenirNbRebonds() + 1 );
 		//Ajuster la direction du rayon réfracté
-		RefractedRayon.AjusterDirection(CVecteur3::Refract(CVecteur3::Normaliser(Rayon.ObtenirDirection()), Intersection.ObtenirNormale(), IndiceRefractionRatio));
+		RefractedRayon.AjusterDirection(CVecteur3::Normaliser(CVecteur3::Refract(Rayon.ObtenirDirection(), SurfaceNormal, IndiceRefractionRatio)));
 
 		Result += ObtenirCouleur( RefractedRayon ) * Intersection.ObtenirSurface()->ObtenirCoeffRefraction();
 	}
@@ -862,8 +862,6 @@ const CCouleur CScene::ObtenirFiltreDeSurface( CRayon& LumiereRayon ) const
 
 	REAL Distance = CVecteur3::Norme(LumiereRayon.ObtenirDirection());
 	LumiereRayon.AjusterDirection(LumiereRayon.ObtenirDirection() / Distance);
-
-	// TODO : À COMPLÉTER ...
 
 	// Tester le rayon de lumière avec chaque surface de la scène
 	// pour vérifier s'il y a intersection

@@ -571,13 +571,16 @@ namespace Math3D
 	{
 		CVecteur3 Result;
 
-		Result = IndiceRefractionRatio * (Vecteur - CVecteur3::ProdScal(Vecteur, Normal) * Normal);
-		Result = Result - sqrt(RENDRE_REEL(1.0) - CVecteur3::ProdScal(Result, Result)) * Normal;
-
-		// Reflexion totale, angle > 90° => Produit Scalaire négatif
-		if (CVecteur3::ProdScal(CVecteur3::Normaliser(Vecteur), CVecteur3::Normaliser(Result)) <= 0.0) {
-			return CVecteur3::Reflect(Vecteur, Normal);
+		// Reflexion totale, angle d'incidence plus grand que l'angle critique (ThetaCritique = arcsin(n2/n1) et n2/n1 <= 0);
+		if (IndiceRefractionRatio >= 1.0 && 1.0 / IndiceRefractionRatio <= sqrt(1.0 - CVecteur3::ProdScal(-Vecteur, Normal)*CVecteur3::ProdScal(-Vecteur, Normal))) {
+			return CVecteur3::Reflect(-Vecteur, Normal);
 		}
+		CVecteur3 up = CVecteur3::ProdVect(Vecteur, Normal);
+		CVecteur3 z = CVecteur3::Normaliser(CVecteur3::ProdVect(Normal, up));
+
+		REAL sinThetaCarre = 1.0 - pow(CVecteur3::ProdScal(-Vecteur, Normal), 2.0);
+
+		Result = IndiceRefractionRatio * sqrt(sinThetaCarre) * z - sqrt(1.0 - IndiceRefractionRatio*IndiceRefractionRatio * sinThetaCarre) * Normal;
 
 		return Result;
 	}

@@ -133,8 +133,8 @@ void CQuadrique::Pretraitement( void )
 
     Q = Inverse * Q * Inverse.Transpose();
 
-    m_Quadratique.x = Q[ 0 ][ 0 ];
-    m_Quadratique.y = Q[ 1 ][ 1 ];
+	m_Quadratique.x = Q[ 0 ][ 0 ];
+	m_Quadratique.y = Q[ 1 ][ 1 ];
 	m_Quadratique.z = Q[ 2 ][ 2 ];
 	m_Cst           = Q[ 3 ][ 3 ];
 	m_Mixte.x       = Q[ 1 ][ 2 ] * RENDRE_REEL( 2.0 );
@@ -209,11 +209,11 @@ CIntersection CQuadrique::Intersection( const CRayon& Rayon )
 		REAL t1;
 		t0 = (-bq + sqrtDelta) / (RENDRE_REEL(2.0) * aq);
 		t1 = (-bq - sqrtDelta) / (RENDRE_REEL(2.0) * aq);
-		if (t0 <= RENDRE_REEL(0.0) && t1 <= RENDRE_REEL(0.0)) {
+		if (t0 <= EPSILON && t1 <= EPSILON) {
 			return Result;
-		} else if (t0 <= RENDRE_REEL(0.0) && t1 > RENDRE_REEL(0.0)) {
+		} else if (t0 <= EPSILON && t1 > EPSILON) {
 			t = t1;
-		} else if (t0 > RENDRE_REEL(0.0) && t1 <= RENDRE_REEL(0.0)) {
+		} else if (t0 > EPSILON && t1 <= EPSILON) {
 			t = t0;
 		} else {
 			t = Min<REAL>(t0, t1);
@@ -229,7 +229,7 @@ CIntersection CQuadrique::Intersection( const CRayon& Rayon )
 
 	Result.AjusterSurface(this);
 	Result.AjusterDistance(CVecteur3::Distance(inter, Rayon.ObtenirOrigine()));
-	Result.AjusterNormale((CVecteur3::ProdScal(normale, Rayon.ObtenirDirection()) > RENDRE_REEL(0.0)) ? -normale : normale);
+	Result.AjusterNormale(normale);
 	
 	return Result;
 }

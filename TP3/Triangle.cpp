@@ -142,7 +142,7 @@ CIntersection CTriangle::Intersection(const CRayon& Rayon)
 	CIntersection interPlan = planTriangle.Intersection(Rayon);
 
 	// S'il n'y a pas d'intersection, on sort
-	if (interPlan.ObtenirDistance() < 0.0)
+	if (interPlan.ObtenirDistance() < EPSILON)
 		return Result;
 
 	// Calcul du point d'intersection P
