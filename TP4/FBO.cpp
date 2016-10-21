@@ -23,12 +23,12 @@ using namespace std;
 ///
 ///////////////////////////////////////////////////////////////////////////////
 CFBO::CFBO() :
-m_FBO( 0 ),
-m_Texture( 0 ),
-m_InternalFormat( 0 ),
-m_Target( GL_TEXTURE_2D ),
-m_TextureW( 0 ),
-m_TextureH( 0 )
+    m_FBO(0),
+    m_Texture(0),
+    m_InternalFormat(0),
+    m_Target(GL_TEXTURE_2D),
+    m_TextureW(0),
+    m_TextureH(0)
 {
 }
 
@@ -45,7 +45,7 @@ m_TextureH( 0 )
 ///////////////////////////////////////////////////////////////////////////////
 CFBO::~CFBO()
 {
-   Liberer();
+    Liberer();
 }
 
 
@@ -73,64 +73,88 @@ CFBO::~CFBO()
 ///  @date   2008-10-19
 ///
 ///////////////////////////////////////////////////////////////////////////////
-void CFBO::Init( int w, int h )
+void CFBO::Init(int w, int h)
 {
-   // Dimensions
-   m_TextureW = w;
-   m_TextureH = h;
+    // Dimensions
+    m_TextureW = w;
+    m_TextureH = h;
 
-   // TODO: Remplir la fonction d'initialisation d'un FBO:
+    // TODO: Remplir la fonction d'initialisation d'un FBO:
 
-   // Créer et lier un nouveau frame buffer avec l'ID m_fbo:
-   // ...
+    // Destruction d'un éventuel ancien Render Buffer
 
-   // Créer une texture RGB pour les couleurs avec L'ID m_Texture:
-   // Pour échantillionner plus tard des valeurs exactes
-   // on veut des filtres de mignification et magnification de tpe NEAREST!
-   // ...
+    if (glIsRenderbuffer(m_FBO) == GL_TRUE)
+        glDeleteRenderbuffers(1, &m_FBO);
 
-   // Créer une texture de profondeurs pour les couleurs avec L'ID m_Profondeur: 
-   // ...
+    // Créer et lier un nouveau frame buffer avec l'ID m_fbo:
+
+    glGenRenderbuffers(1, &m_FBO);
+    glBindRenderbuffer(GL_RENDERBUFFER, m_FBO);
+
+        // Créer une texture RGB pour les couleurs avec L'ID m_Texture:
+        // Pour échantillionner plus tard des valeurs exactes
+        // on veut des filtres de mignification et magnification de tpe NEAREST!
+
+        glGenTextures(1, &m_Texture);
+        glBindTexture(m_Target, m_Texture);
+
+            glTexImage2D(m_Target, 0, GL_RGBA8, m_TextureW, m_TextureH, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+
+            glTexParameteri(m_Target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            glTexParameteri(m_Target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+        glBindTexture(m_Target, 0);
 
 
-   // Attacher nos deux textures au frame buffer à des fin d'affichage (DRAW):
-   // ...
+        // Créer une texture de profondeurs pour les couleurs avec L'ID m_Profondeur: 
+        glGenRenderbuffers(1, &m_Profondeur);
+        glBindRenderbuffer(GL_RENDERBUFFER, m_Profondeur);
 
-   // Vérification des erreurs FBO
-   // Nous vous fournissons cette vérification d'erreurs
-   // pour que vous arriviez plus aisément à déboguer votre code.
-   GLenum status = glCheckFramebufferStatus( GL_FRAMEBUFFER );
-   glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, m_TextureW, m_TextureH);
 
-   // On vérifie les erreurs à la suite de la création du FBO
-   switch( status )
-   {
-   case GL_FRAMEBUFFER_COMPLETE_EXT:
-      break;
-   case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT:
-      cerr << "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT" << endl;
-      break;
-   case GL_FRAMEBUFFER_UNSUPPORTED_EXT:
-      cerr << "GL_FRAMEBUFFER_UNSUPPORTED_EXT" << endl;
-      break;
-   case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT:
-      cerr << "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT" << endl;
-      break;
-   case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
-      cerr << "GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT" << endl;
-      break;
-   case GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT:
-      cerr << "GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT" << endl;
-      break;
-   case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT:
-      cerr << "GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT" << endl;
-      break;
-   case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT:
-      cerr << "GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT" << endl;
-      break;
-   default:
-      cerr << "ERREUR INCONNUE" << endl;
-   }
+        
+
+        // Attacher nos deux textures au frame buffer à des fin d'affichage (DRAW):
+        glFramebufferTexture2DEXT(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, m_Target, m_Texture, 0);
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_Profondeur);
+
+    glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+    // Vérification des erreurs FBO
+    // Nous vous fournissons cette vérification d'erreurs
+    // pour que vous arriviez plus aisément à déboguer votre code.
+    GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    // On vérifie les erreurs à la suite de la création du FBO
+    switch (status)
+    {
+    case GL_FRAMEBUFFER_COMPLETE_EXT:
+        break;
+    case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT:
+        cerr << "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT" << endl;
+        break;
+    case GL_FRAMEBUFFER_UNSUPPORTED_EXT:
+        cerr << "GL_FRAMEBUFFER_UNSUPPORTED_EXT" << endl;
+        break;
+    case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT:
+        cerr << "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT" << endl;
+        break;
+    case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
+        cerr << "GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT" << endl;
+        break;
+    case GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT:
+        cerr << "GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT" << endl;
+        break;
+    case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT:
+        cerr << "GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT" << endl;
+        break;
+    case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT:
+        cerr << "GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT" << endl;
+        break;
+    default:
+        cerr << "ERREUR INCONNUE" << endl;
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -146,22 +170,22 @@ void CFBO::Init( int w, int h )
 ///////////////////////////////////////////////////////////////////////////////
 void CFBO::Liberer()
 {
-   if ( m_Texture )
-   {
-      glDeleteTextures( 1, &m_Texture );
-      m_Texture = 0;
-   }
+    if (m_Texture)
+    {
+        glDeleteTextures(1, &m_Texture);
+        m_Texture = 0;
+    }
 
-   if ( m_FBO )
-   {
-      glDeleteFramebuffers( 1, &m_FBO );
-      m_FBO = 0;
-   }
-   if(m_Profondeur)
-   {
-	   glDeleteTextures( 1, &m_Profondeur );
-      m_Profondeur = 0;
-   }
+    if (m_FBO)
+    {
+        glDeleteFramebuffers(1, &m_FBO);
+        m_FBO = 0;
+    }
+    if (m_Profondeur)
+    {
+        glDeleteTextures(1, &m_Profondeur);
+        m_Profondeur = 0;
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -182,9 +206,12 @@ void CFBO::Liberer()
 void CFBO::CommencerCapture()
 {
     // TODO: 
-	// Activer l'utilisation du FBO
-	// Attention à la résolution avec laquelle on veut afficher!
-	// ...
+    // Activer l'utilisation du FBO
+    // Attention à la résolution avec laquelle on veut afficher!
+    glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glPushAttrib(GL_VIEWPORT_BIT);
+    glViewport(0, 0, m_TextureW, m_TextureH);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -204,7 +231,8 @@ void CFBO::CommencerCapture()
 ///////////////////////////////////////////////////////////////////////////////
 void CFBO::TerminerCapture()
 {
-	// TODO: 
-	// Remettre OpenGL dans l'état par défaut
-	// ...
+    // TODO: 
+    // Remettre OpenGL dans l'état par défaut
+    glPopAttrib();
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
