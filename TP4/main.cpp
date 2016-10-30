@@ -1053,10 +1053,7 @@ void clavier(GLFWwindow* fenetre, int touche, int scancode, int action, int mods
 
 	case  GLFW_KEY_F: {
 		if (action == GLFW_PRESS) {
-			if (CVar::FBOon)
-				CVar::FBOon = false;
-			else
-				CVar::FBOon = true;
+            CVar::FBOon = !CVar::FBOon;
 		}
 		break;
 	}

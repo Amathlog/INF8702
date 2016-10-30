@@ -88,8 +88,8 @@ void CFBO::Init(int w, int h)
 
     // Créer et lier un nouveau frame buffer avec l'ID m_fbo:
 
-    glGenRenderbuffers(1, &m_FBO);
-    glBindRenderbuffer(GL_RENDERBUFFER, m_FBO);
+    glGenFramebuffers(1, &m_FBO);
+    glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
 
         // Créer une texture RGB pour les couleurs avec L'ID m_Texture:
         // Pour échantillionner plus tard des valeurs exactes
@@ -105,20 +105,19 @@ void CFBO::Init(int w, int h)
 
         glBindTexture(m_Target, 0);
 
-
         // Créer une texture de profondeurs pour les couleurs avec L'ID m_Profondeur: 
         glGenRenderbuffers(1, &m_Profondeur);
         glBindRenderbuffer(GL_RENDERBUFFER, m_Profondeur);
 
-        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, m_TextureW, m_TextureH);
+            glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, m_TextureW, m_TextureH);
 
-        
+        glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
         // Attacher nos deux textures au frame buffer à des fin d'affichage (DRAW):
-        glFramebufferTexture2DEXT(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, m_Target, m_Texture, 0);
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_Profondeur);
+        glFramebufferTexture2DEXT(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, m_Target, m_Texture, 0);
 
-    glBindRenderbuffer(GL_RENDERBUFFER, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     // Vérification des erreurs FBO
     // Nous vous fournissons cette vérification d'erreurs
