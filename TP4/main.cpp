@@ -336,6 +336,10 @@ void initialisation (void) {
 	// TODO 
 	// Création des trois FBOs pour cartes d'ombres:
     // Utilisez CCst::tailleShadowMap
+    for (int i = 0; i < 3; ++i) {
+        shadowMaps[i] = new CFBO();
+        fbo->Init(CCst::tailleShadowMap, CCst::tailleShadowMap);
+    }
 	
 
 	construireMatricesProjectivesEclairage();
@@ -379,8 +383,18 @@ void construireCartesOmbrage(void)
 	// avec la bonne matrice modèle!
 	for (unsigned int i = 0; i < CVar::lumieres.size(); i++)
 	{
-		// TODO :
-		// ...
+        progNuanceurShadowMap.activer();
+
+        shadowMaps[i]->CommencerCapture();
+
+        lightMVP = lightVP[i] * venusModelMatrix;
+        GLint handle = glGetUniformLocation(progNuanceurShadowMap.getProg(), "shadowMVP");
+        glUniformMatrix4fv(handle, 1, GL_FALSE, &lightMVP[0][0]);
+
+        modele3Dvenus->dessiner();
+
+        shadowMaps[i]->TerminerCapture();
+
 	}
 }
 
@@ -420,19 +434,25 @@ void construireMatricesProjectivesEclairage(void)
 	// position = position lumière
 	// point visé : centre de l'objet (on triche avec la lumière ponctuelle)
 	// fov = Assez pour voir completement le moèdle (~90 est OK).
-
+    CVar::lumieres[ENUM_LUM::LumPonctuelle]->obtenirPos(pos);
+    point_vise = glm::normalize((modele3Dvenus->obtenirCentroid() - glm::vec3(pos[0], pos[1], pos[2])));
+    fov = 90.0f;
+    lumVueMat = glm::lookAt(point_vise, glm::vec3(pos[0], pos[1], pos[2]), glm::vec3(0, 1, 0));
+    lumProjMat = glm::perspective(fov, 1.0f, 0.1f, K);
+    lightVP[0] = lumProjMat * lumVueMat;
 
 	/// LUM1 : SPOT : sauvegarder dans lightVP[1]
 	//	position = position lumière
 	//	direction = spot_dir (attention != point visé)
 	//  fov = angle du spot
-
+    CVar::lumieres[ENUM_LUM::LumSpot]->obtenirPos(pos);
 
 
 	//LUM2 : DIRECTIONNELLE : sauvegarder dans lightVP[2]
 	//	position = -dir * K | K=constante assez grande pour ne pas être dans le modèle
 	//	direction = 0,0,0
 	//  projection orthogonale, assez large pour voir le modèle (ortho_width)
+    CVar::lumieres[ENUM_LUM::LumDirectionnelle]->obtenirPos(pos);
 
 }
 
