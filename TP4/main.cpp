@@ -301,6 +301,7 @@ void initialisation (void) {
 	char* modele3DTexture = NULL;  // on ne désire pas de texture pour l'instant
 	
 	modele3Dvenus = new CModele3DOBJ("Modeles/venus-low.obj", modele3DTexture, 1.0);
+    //modele3Dvenus = new CModele3DOBJ("Modeles/venus.obj", modele3DTexture, 1.0);
 	modele3Dvenus->attribuerNuanceur(progNuanceurModele3D);
 	venusModelMatrix = getModelMatrixVenus();
 
@@ -429,15 +430,22 @@ void construireMatricesProjectivesEclairage(void)
 	glm::vec3 point_vise;
 	glm::mat4 lumVueMat;
 	glm::mat4 lumProjMat;
+    glm::vec3 up;
+    glm::vec3 right;
 
 	/// LUM0 : PONCTUELLE : sauvegarder dans lightVP[0]
 	// position = position lumière
 	// point visé : centre de l'objet (on triche avec la lumière ponctuelle)
 	// fov = Assez pour voir completement le moèdle (~90 est OK).
     CVar::lumieres[ENUM_LUM::LumPonctuelle]->obtenirPos(pos);
-    point_vise = glm::normalize((modele3Dvenus->obtenirCentroid() - glm::vec3(pos[0], pos[1], pos[2])));
+    point_vise = modele3Dvenus->obtenirCentroid();
+    for (int i = 0; i < 4;i++)
+    cout << pos[i]  << endl;
+    cout << point_vise[0] << " " << point_vise[1] << " " << point_vise[2] << endl;
     fov = 90.0f;
-    lumVueMat = glm::lookAt(point_vise, glm::vec3(pos[0], pos[1], pos[2]), glm::vec3(0, 1, 0));
+    right = glm::normalize(glm::cross(point_vise - glm::vec3(pos[0], pos[1], pos[2]), glm::vec3(0, 0, 1)));
+    up = glm::normalize(glm::cross(right, point_vise - glm::vec3(pos[0], pos[1], pos[2])));
+    lumVueMat = glm::lookAt(glm::vec3(pos[0], pos[1], pos[2]), point_vise, up);
     lumProjMat = glm::perspective(fov, 1.0f, 0.1f, K);
     lightVP[0] = lumProjMat * lumVueMat;
 

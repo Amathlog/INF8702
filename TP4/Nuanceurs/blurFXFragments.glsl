@@ -82,11 +82,11 @@ void main (void)
 
 		//TODO : Ajouter le flou gaussien:
 		//Couleur du FBO:
-		clear_color = vec4(texture(colorMap, fragTexCoord.xy).rgb, 1.0);
+		clear_color = texture(colorMap, fragTexCoord);
    
 		// Quantifier la différence de profondeur entre le point visé et le fragment courant:
 		// Utilisez LineariserProfondeur() sur les profondeurs échantillonnées
-		depth = LineariserProfondeur(texture(depthMap, fragTexCoord.xy).x);
+		depth = LineariserProfondeur(texture2D(depthMap, fragTexCoord.xy).x);
 		center_depth =  LineariserProfondeur(texture2D(depthMap, vec2(0.5,0.5)).x); 
 
 		// Le poids est simplement la différence absolue entre ces deux valeurs:
@@ -101,11 +101,13 @@ void main (void)
 
 		// À modifier :
 		// Ajuster la couleur selon la différence de profondeur entre le point visé et le fragment courant:
-		color = blurred_col;
+		// TODO : There is Aliasing
+		color = clear_color;
+		//color = (clear_color + blurred_col * w)/(1.0 + w);
 		
 
 		// Afin de déboguer, on peut affichier simplement les valeurs de profondeurs:
-		color = vec4(depth, depth, depth, 1.0);
+		//color = vec4(depth, depth, depth, 1.0);
 	
 	}
     

@@ -88,17 +88,17 @@ void CFBO::Init(int w, int h)
 
     // Créer et lier un nouveau frame buffer avec l'ID m_fbo:
 
-    glGenFramebuffers(1, &m_FBO);
-    glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
+    glGenFramebuffersEXT(1, &m_FBO);
+    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, m_FBO);
 
         // Créer une texture RGB pour les couleurs avec L'ID m_Texture:
         // Pour échantillionner plus tard des valeurs exactes
         // on veut des filtres de mignification et magnification de tpe NEAREST!
 
-        glGenTextures(1, &m_Texture);
-        glBindTexture(m_Target, m_Texture);
+        glGenTexturesEXT(1, &m_Texture);
+        glBindTextureEXT(m_Target, m_Texture);
 
-            glTexImage2D(m_Target, 0, GL_RGBA8, m_TextureW, m_TextureH, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+            glTexImage2D(m_Target, 0, GL_RGBA, m_TextureW, m_TextureH, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 
             glTexParameteri(m_Target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
             glTexParameteri(m_Target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -106,18 +106,21 @@ void CFBO::Init(int w, int h)
         glBindTexture(m_Target, 0);
 
         // Créer une texture de profondeurs pour les couleurs avec L'ID m_Profondeur: 
-        glGenRenderbuffers(1, &m_Profondeur);
-        glBindRenderbuffer(GL_RENDERBUFFER, m_Profondeur);
+        glGenTextures(1, &m_Profondeur);
+        glBindTexture(m_Target, m_Profondeur);
 
-            glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, m_TextureW, m_TextureH);
+            glTexImage2D(m_Target, 0, GL_DEPTH_COMPONENT, m_TextureW, m_TextureH, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
 
-        glBindRenderbuffer(GL_RENDERBUFFER, 0);
+            glTexParameteri(m_Target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            glTexParameteri(m_Target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+        glBindTexture(m_Target, 0);
 
         // Attacher nos deux textures au frame buffer à des fin d'affichage (DRAW):
-        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_Profondeur);
-        glFramebufferTexture2DEXT(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, m_Target, m_Texture, 0);
+        glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, m_Target, m_Profondeur, 0);
+        glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, m_Target, m_Texture, 0);
 
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 
     // Vérification des erreurs FBO
     // Nous vous fournissons cette vérification d'erreurs
@@ -207,7 +210,7 @@ void CFBO::CommencerCapture()
     // TODO: 
     // Activer l'utilisation du FBO
     // Attention à la résolution avec laquelle on veut afficher!
-    glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
+    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, m_FBO);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glPushAttrib(GL_VIEWPORT_BIT);
     glViewport(0, 0, m_TextureW, m_TextureH);
@@ -233,5 +236,5 @@ void CFBO::TerminerCapture()
     // TODO: 
     // Remettre OpenGL dans l'état par défaut
     glPopAttrib();
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 }
