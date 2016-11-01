@@ -60,7 +60,7 @@ CFBO *fbo = NULL;
 CFBO *shadowMaps[3];
 CTextureCubemap *carteDiffuse;
 
-bool afficherShadowMap = false;
+bool afficherShadowMap = true;
 bool afficherAutresModeles = false;
 unsigned int shadowMapAAfficher = 0;
 
@@ -339,7 +339,7 @@ void initialisation (void) {
     // Utilisez CCst::tailleShadowMap
     for (int i = 0; i < 3; ++i) {
         shadowMaps[i] = new CFBO();
-        fbo->Init(CCst::tailleShadowMap, CCst::tailleShadowMap);
+        shadowMaps[i]->Init(CCst::tailleShadowMap, CCst::tailleShadowMap);
     }
 	
 

@@ -101,9 +101,7 @@ void main (void)
 
 		// À modifier :
 		// Ajuster la couleur selon la différence de profondeur entre le point visé et le fragment courant:
-		// TODO : There is Aliasing
-		color = clear_color;
-		//color = (clear_color + blurred_col * w)/(1.0 + w);
+		color = clear_color * (1-w) + blurred_col * w;
 		
 
 		// Afin de déboguer, on peut affichier simplement les valeurs de profondeurs:

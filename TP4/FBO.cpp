@@ -88,15 +88,15 @@ void CFBO::Init(int w, int h)
 
     // Créer et lier un nouveau frame buffer avec l'ID m_fbo:
 
-    glGenFramebuffersEXT(1, &m_FBO);
-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, m_FBO);
+    glGenFramebuffers(1, &m_FBO);
+    glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
 
         // Créer une texture RGB pour les couleurs avec L'ID m_Texture:
         // Pour échantillionner plus tard des valeurs exactes
         // on veut des filtres de mignification et magnification de tpe NEAREST!
 
-        glGenTexturesEXT(1, &m_Texture);
-        glBindTextureEXT(m_Target, m_Texture);
+        glGenTextures(1, &m_Texture);
+        glBindTexture(m_Target, m_Texture);
 
             glTexImage2D(m_Target, 0, GL_RGBA, m_TextureW, m_TextureH, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 
@@ -117,8 +117,8 @@ void CFBO::Init(int w, int h)
         glBindTexture(m_Target, 0);
 
         // Attacher nos deux textures au frame buffer à des fin d'affichage (DRAW):
-        glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, m_Target, m_Profondeur, 0);
-        glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, m_Target, m_Texture, 0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, m_Target, m_Profondeur, 0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, m_Target, m_Texture, 0);
 
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 
@@ -210,7 +210,7 @@ void CFBO::CommencerCapture()
     // TODO: 
     // Activer l'utilisation du FBO
     // Attention à la résolution avec laquelle on veut afficher!
-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, m_FBO);
+    glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glPushAttrib(GL_VIEWPORT_BIT);
     glViewport(0, 0, m_TextureW, m_TextureH);
@@ -236,5 +236,5 @@ void CFBO::TerminerCapture()
     // TODO: 
     // Remettre OpenGL dans l'état par défaut
     glPopAttrib();
-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
