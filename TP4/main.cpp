@@ -30,6 +30,7 @@
 #include "Skybox.h"
 #include "Gazon.h"
 #include "FBO.h"
+#include <windows.h>
 
 
 ///////////////////////////////////////////////
@@ -127,6 +128,10 @@ void mouvementSouris(GLFWwindow* window, double deltaT, glm::vec3& direction, gl
 void redimensionnement(GLFWwindow *fenetre, int w, int h);
 void rafraichirCamera(GLFWwindow* window, double deltaT);
 void compilerNuanceurs();
+
+extern "C" {
+	_declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001;
+}
 
 // le main
 int main(int argc,char *argv[])
@@ -430,7 +435,7 @@ void construireMatricesProjectivesEclairage(void)
 	
 	// Variables temporaires:
 	float fov;
-    float ratio = float(CVar::currentW / CVar::currentH);
+	float ratio = 1;//float(CVar::currentW / CVar::currentH);
 	float const K = 100.0f;
 	float const ortho_width=20.f;
 	GLfloat pos[4];
@@ -458,10 +463,10 @@ void construireMatricesProjectivesEclairage(void)
 	//  fov = angle du spot
     CVar::lumieres[ENUM_LUM::LumSpot]->obtenirPos(pos);
     CVar::lumieres[ENUM_LUM::LumSpot]->obtenirSpotDir(dir);
-    up = computeUp(glm::vec3(dir[0], dir[1], dir[2]));
-    fov = CVar::lumieres[ENUM_LUM::LumSpot]->obtenirSpotCutOff()*2.0;
+	up = glm::vec3(0.0f, 1.0f, 0.0f);//computeUp(glm::vec3(dir[0], dir[1], dir[2]));
+	fov = DEG2RAD(CVar::lumieres[ENUM_LUM::LumSpot]->obtenirSpotCutOff());
 
-    lumVueMat = glm::lookAt(glm::vec3(pos[0], pos[1], pos[2]), glm::vec3(dir[0], dir[1], dir[2]), up);
+    lumVueMat = glm::lookAt(glm::vec3(pos[0], pos[1], pos[2]), glm::vec3(pos[0]+dir[0], pos[1] + dir[1], pos[2]+ dir[2]), up);
     lumProjMat = glm::perspective(fov, ratio, 0.1f, K);
     lightVP[1] = lumProjMat * lumVueMat;
 
