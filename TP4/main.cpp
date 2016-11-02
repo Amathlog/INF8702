@@ -62,7 +62,7 @@ CTextureCubemap *carteDiffuse;
 
 bool afficherShadowMap = true;
 bool afficherAutresModeles = false;
-unsigned int shadowMapAAfficher = 0;
+unsigned int shadowMapAAfficher = 1;
 
 double sourisX = 0;
 double sourisY = 0;
@@ -399,6 +399,13 @@ void construireCartesOmbrage(void)
 	}
 }
 
+// Calcule le vecteur up de la camera
+// Proprement
+glm::vec3 computeUp(glm::vec3 towards) {
+    glm::vec3 right = glm::normalize(glm::cross(towards, glm::vec3(0, 0, 1)));
+    return glm::normalize(glm::cross(right, towards));
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 ///  global public  construireMatricesProjectivesEclairage \n
 ///
@@ -423,6 +430,7 @@ void construireMatricesProjectivesEclairage(void)
 	
 	// Variables temporaires:
 	float fov;
+    float ratio = float(CVar::currentW / CVar::currentH);
 	float const K = 100.0f;
 	float const ortho_width=20.f;
 	GLfloat pos[4];
@@ -431,7 +439,6 @@ void construireMatricesProjectivesEclairage(void)
 	glm::mat4 lumVueMat;
 	glm::mat4 lumProjMat;
     glm::vec3 up;
-    glm::vec3 right;
 
 	/// LUM0 : PONCTUELLE : sauvegarder dans lightVP[0]
 	// position = position lumière
@@ -439,14 +446,10 @@ void construireMatricesProjectivesEclairage(void)
 	// fov = Assez pour voir completement le moèdle (~90 est OK).
     CVar::lumieres[ENUM_LUM::LumPonctuelle]->obtenirPos(pos);
     point_vise = modele3Dvenus->obtenirCentroid();
-    for (int i = 0; i < 4;i++)
-    cout << pos[i]  << endl;
-    cout << point_vise[0] << " " << point_vise[1] << " " << point_vise[2] << endl;
     fov = 90.0f;
-    right = glm::normalize(glm::cross(point_vise - glm::vec3(pos[0], pos[1], pos[2]), glm::vec3(0, 0, 1)));
-    up = glm::normalize(glm::cross(right, point_vise - glm::vec3(pos[0], pos[1], pos[2])));
+    up = computeUp(point_vise - glm::vec3(pos[0], pos[1], pos[2]));
     lumVueMat = glm::lookAt(glm::vec3(pos[0], pos[1], pos[2]), point_vise, up);
-    lumProjMat = glm::perspective(fov, 1.0f, 0.1f, K);
+    lumProjMat = glm::perspective(fov, ratio, 0.1f, K);
     lightVP[0] = lumProjMat * lumVueMat;
 
 	/// LUM1 : SPOT : sauvegarder dans lightVP[1]
@@ -454,6 +457,14 @@ void construireMatricesProjectivesEclairage(void)
 	//	direction = spot_dir (attention != point visé)
 	//  fov = angle du spot
     CVar::lumieres[ENUM_LUM::LumSpot]->obtenirPos(pos);
+    CVar::lumieres[ENUM_LUM::LumSpot]->obtenirSpotDir(dir);
+    up = computeUp(glm::vec3(dir[0], dir[1], dir[2]));
+    fov = CVar::lumieres[ENUM_LUM::LumSpot]->obtenirSpotCutOff()*2.0;
+
+    lumVueMat = glm::lookAt(glm::vec3(pos[0], pos[1], pos[2]), glm::vec3(dir[0], dir[1], dir[2]), up);
+    lumProjMat = glm::perspective(fov, ratio, 0.1f, K);
+    lightVP[1] = lumProjMat * lumVueMat;
+
 
 
 	//LUM2 : DIRECTIONNELLE : sauvegarder dans lightVP[2]
