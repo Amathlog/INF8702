@@ -30,7 +30,6 @@
 #include "Skybox.h"
 #include "Gazon.h"
 #include "FBO.h"
-#include <windows.h>
 
 
 ///////////////////////////////////////////////
@@ -63,7 +62,7 @@ CTextureCubemap *carteDiffuse;
 
 bool afficherShadowMap = true;
 bool afficherAutresModeles = false;
-unsigned int shadowMapAAfficher = 1;
+unsigned int shadowMapAAfficher = 2;
 
 double sourisX = 0;
 double sourisY = 0;
@@ -128,10 +127,6 @@ void mouvementSouris(GLFWwindow* window, double deltaT, glm::vec3& direction, gl
 void redimensionnement(GLFWwindow *fenetre, int w, int h);
 void rafraichirCamera(GLFWwindow* window, double deltaT);
 void compilerNuanceurs();
-
-extern "C" {
-	_declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001;
-}
 
 // le main
 int main(int argc,char *argv[])
@@ -476,8 +471,15 @@ void construireMatricesProjectivesEclairage(void)
 	//	position = -dir * K | K=constante assez grande pour ne pas être dans le modèle
 	//	direction = 0,0,0
 	//  projection orthogonale, assez large pour voir le modèle (ortho_width)
-    CVar::lumieres[ENUM_LUM::LumDirectionnelle]->obtenirPos(pos);
-
+	CVar::lumieres[ENUM_LUM::LumDirectionnelle]->obtenirPos(pos);
+	for (int i = 0; i < 3; i++) {
+		dir[i] = pos[i];
+		pos[i] *= -K;
+	}
+	//up = computeUp(- glm::vec3(pos[0], pos[1], pos[2]));
+	lumVueMat = glm::lookAt(glm::vec3(pos[0], pos[1], pos[2]), glm::vec3(pos[0] + dir[0], pos[1] + dir[1], pos[2] + dir[2]), glm::vec3(0.0f, 1.0f, 0.0f));
+	lumProjMat = glm::ortho(-ortho_width, ortho_width, -ortho_width, ortho_width, 1.0f,7.5f);
+	lightVP[2] = lumProjMat * lumVueMat;
 }
 
 
