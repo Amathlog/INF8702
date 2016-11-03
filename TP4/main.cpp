@@ -402,7 +402,7 @@ void construireCartesOmbrage(void)
 // Calcule le vecteur up de la camera
 // Proprement
 glm::vec3 computeUp(glm::vec3 towards) {
-    glm::vec3 right = glm::normalize(glm::cross(towards, glm::vec3(0, 0, 1)));
+    glm::vec3 right = glm::normalize(glm::cross(towards, glm::vec3(0, 1, 0)));
     return glm::normalize(glm::cross(right, towards));
 }
 
@@ -458,7 +458,7 @@ void construireMatricesProjectivesEclairage(void)
 	//  fov = angle du spot
     CVar::lumieres[ENUM_LUM::LumSpot]->obtenirPos(pos);
     CVar::lumieres[ENUM_LUM::LumSpot]->obtenirSpotDir(dir);
-	up = glm::vec3(0.0f, 1.0f, 0.0f);//computeUp(glm::vec3(dir[0], dir[1], dir[2]));
+	up = computeUp(glm::vec3(dir[0], dir[1], dir[2]));
 	fov = DEG2RAD(CVar::lumieres[ENUM_LUM::LumSpot]->obtenirSpotCutOff());
 
     lumVueMat = glm::lookAt(glm::vec3(pos[0], pos[1], pos[2]), glm::vec3(pos[0]+dir[0], pos[1] + dir[1], pos[2]+ dir[2]), up);
@@ -472,13 +472,9 @@ void construireMatricesProjectivesEclairage(void)
 	//	direction = 0,0,0
 	//  projection orthogonale, assez large pour voir le modèle (ortho_width)
 	CVar::lumieres[ENUM_LUM::LumDirectionnelle]->obtenirPos(pos);
-	for (int i = 0; i < 3; i++) {
-		dir[i] = pos[i];
-		pos[i] *= -K;
-	}
-	//up = computeUp(- glm::vec3(pos[0], pos[1], pos[2]));
-	lumVueMat = glm::lookAt(glm::vec3(pos[0], pos[1], pos[2]), glm::vec3(pos[0] + dir[0], pos[1] + dir[1], pos[2] + dir[2]), glm::vec3(0.0f, 1.0f, 0.0f));
-	lumProjMat = glm::ortho(-ortho_width, ortho_width, -ortho_width, ortho_width, 1.0f,7.5f);
+
+	lumVueMat = glm::lookAt(-glm::vec3(pos[0], pos[1], pos[2]), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	lumProjMat = glm::ortho(-ortho_width, ortho_width, -ortho_width, ortho_width, -ortho_width / 2.0f, ortho_width);
 	lightVP[2] = lumProjMat * lumVueMat;
 }
 
