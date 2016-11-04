@@ -70,13 +70,13 @@ float Ombrage(in vec4 fragLightCoord, in sampler2D shadowMap)
     projCoords = fragLightCoord.xyz/fragLightCoord.w;
    
     // On transforme ces coordonées situées en [-1,1] vers [0,1]:
-    projCoords = projCoords*0.5+0.5;
+    projCoords = clamp(projCoords*0.5+0.5,0,1);
 
     // On échantillone dans le shadowmap:
     closestDepth = texture(shadowMap, projCoords.xy).r;
 
     // On récupère la profondeur du fragment courant:
-    currentDepth = projCoords.z;
+    currentDepth = gl_FragCoord.z;
 
     // On compare les pronfondeurs et modifie shadow en conséquence:
 	shadow = currentDepth < closestDepth  ? 1.0 : 0.5;
