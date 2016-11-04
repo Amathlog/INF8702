@@ -60,7 +60,7 @@ CFBO *fbo = NULL;
 CFBO *shadowMaps[3];
 CTextureCubemap *carteDiffuse;
 
-bool afficherShadowMap = true;
+bool afficherShadowMap = false;
 bool afficherAutresModeles = false;
 unsigned int shadowMapAAfficher = 2;
 

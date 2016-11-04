@@ -55,7 +55,7 @@ float Ombrage(in vec4 fragLightCoord, in sampler2D shadowMap)
 {
 	// TODO Compléter la fonction Ombrage:
 
-	if(fragLightCoord.w <0)
+	if(fragLightCoord.w <= 0.0f)
 		return 1.0;
 	// Variables utiles:
 	vec3 projCoords;
@@ -120,7 +120,7 @@ void directionalLight(in vec3 lightVect)
 {
    float nDotVP;         // Produit scalaire entre VP et la normale
 
-   nDotVP = max(0.0, dot(fragNormal, normalize(vec3 (-Lights[2].Position))));
+   nDotVP = max(0.0, dot(fragNormal, normalize(lightVect)));
 
    // Calculer les contributions ambiantes et diffuses
    Ambient  += vec4(Lights[2].Ambient,1.0);
