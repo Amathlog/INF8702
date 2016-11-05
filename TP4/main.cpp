@@ -474,7 +474,7 @@ void construireMatricesProjectivesEclairage(void)
 	CVar::lumieres[ENUM_LUM::LumDirectionnelle]->obtenirPos(pos);
 
 	lumVueMat = glm::lookAt(-glm::vec3(pos[0], pos[1], pos[2]), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-	lumProjMat = glm::ortho(-ortho_width, ortho_width, -ortho_width, ortho_width, -ortho_width / 2.0f, ortho_width);
+	lumProjMat = glm::ortho(-ortho_width, ortho_width, -ortho_width, ortho_width, 0.1f, K);
 	lightVP[2] = lumProjMat * lumVueMat;
 }
 

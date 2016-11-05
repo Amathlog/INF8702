@@ -62,6 +62,7 @@ float Ombrage(in vec4 fragLightCoord, in sampler2D shadowMap)
 	float closestDepth;
 	float currentDepth;
 	float shadow  = 1.0;
+	float bias = 0.0005;
 
 	// Comme nous ne passons pas par gl_Position ici, nos coordonées passées en "clip-space" ne sont pas
 	// pas converties en coordonées normalisées d'écran.
@@ -76,10 +77,10 @@ float Ombrage(in vec4 fragLightCoord, in sampler2D shadowMap)
     closestDepth = texture(shadowMap, projCoords.xy).r;
 
     // On récupère la profondeur du fragment courant:
-    currentDepth = gl_FragCoord.z;
+    currentDepth = projCoords.z;
 
     // On compare les pronfondeurs et modifie shadow en conséquence:
-	shadow = currentDepth < closestDepth  ? 1.0 : 0.5;
+	shadow = currentDepth < closestDepth + bias ? 1.0 : 0.5;
 
     return shadow;
 }  
