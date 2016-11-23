@@ -1,11 +1,15 @@
 #include "Camera.h"
 #include "glm\gtc\matrix_transform.hpp"
+#include "glm\gtx\transform.hpp"
+#include <iostream>
+
+#define PI 3.14159265359f
 
 // Default values
 Camera::Camera() {
     m_position = glm::vec3(3.0f, 3.0f, 3.0f);
     m_focusPoint = glm::vec3(0.0f);
-    m_up = glm::vec3(0.0f, 1.0f, 0.0f);
+    m_up = glm::vec3(0.0f, 0.0f, 1.0f);
 
     m_fov = 45.0f;
     m_ratio = 1.0f;
@@ -63,4 +67,26 @@ void Camera::setNearClipping(float near) {
 void Camera::setFarClipping(float far) {
     m_projectionHasChanged = true;
     m_far = far;
+}
+
+void Camera::movePositionFixedDistanceAndFixedFocus(float magnitudeAngle, float latitude, float longitude) {
+    // TODO : Still an issue when theta > PI || theta < 0.0f
+    m_viewHasChanged = true;
+    glm::vec3 towards = m_position - m_focusPoint;
+    float r = glm::distance(m_position, m_focusPoint);
+
+    float phi = atan2f(towards.y, towards.x);
+    float theta = acos(towards.z / r);
+
+    phi += magnitudeAngle * latitude * PI / 180.0f;
+    theta += magnitudeAngle * longitude * ((phi < 0) ? -1.0f : 1.0f) * PI / 180.0f;
+    if (theta > PI || theta < 0.0f) {
+        phi += PI;
+        theta = PI - theta;
+    }
+    towards.x = r * sin(theta) * cos(phi);
+    towards.y = r * sin(theta) * sin(phi);
+    towards.z = r * cos(theta);
+
+    m_position = towards + m_focusPoint;
 }

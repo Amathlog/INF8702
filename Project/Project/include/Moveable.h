@@ -7,7 +7,7 @@
 class Moveable {
 public:
 
-    Moveable();
+    Moveable(glm::vec3 position = glm::vec3(0.0f));
 
     void setPosition(glm::vec3& position);
     glm::vec3 getPosition();

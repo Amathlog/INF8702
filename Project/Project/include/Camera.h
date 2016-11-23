@@ -17,12 +17,17 @@ public:
     void setPosition(glm::vec3& position);
     void setFocusPoint(glm::vec3& focus);
     void setUp(glm::vec3& up);
+    // Movement
+    void movePositionFixedDistanceAndFixedFocus(float magnitudeAngle, float latitude, float longitude);
 
     // Methods for projection matrix
     void setFOV(float fov);
     void setRatio(float ratio);
     void setNearClipping(float near);
     void setFarClipping(float far);
+
+    
+    
 
 private:
 

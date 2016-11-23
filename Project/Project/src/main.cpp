@@ -13,6 +13,7 @@
 using namespace glm;
 
 #include "Triangle.h"
+#include "Cube.h"
 #include "NuanceurProg.h"
 #include "Scene.h"
 #include "Camera.h"
@@ -60,6 +61,7 @@ int main(void)
 
     // Load shaders
     CNuanceurProg triangleShader{ "shaders/triangle.vert", "shaders/triangle.frag", true };
+    CNuanceurProg cubeShader{ "shaders/cube.vert", "shaders/cube.frag", true };
 
     // Create our scene
     Scene scene;
@@ -74,20 +76,64 @@ int main(void)
     scene.setCamera(camera);
 
     // Create our triangle
-    Triangle triangle(triangleShader);
+    //Triangle triangle(triangleShader);
 
     // Add it to the scene
-    scene.addRenderable(&triangle);
+    //scene.addRenderable(&triangle);
+
+    // Create cube
+    Cube cube1(cubeShader, glm::vec3(-1.0f, 0.0f, 0.0f), 0.5f);
+    scene.addRenderable(&cube1);
+    Cube cube2(cubeShader, glm::vec3(1.0f, 0.0f, 0.0f), 1.0f);
+    scene.addRenderable(&cube2);
+
+    // Mouse positions
+    glm::vec2 savePositionMouse = glm::vec2(-1, -1);
+    glm::vec2 currPositionMouse;
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window) && glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS)
     {
         /* Render here */
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         scene.render();
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
+
+        // Camera handle (mouse + key arrows)
+        if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+            scene.getCamera().movePositionFixedDistanceAndFixedFocus(1.0f, 0.0f, -1.0f);
+        else if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+            scene.getCamera().movePositionFixedDistanceAndFixedFocus(1.0f, 0.0f, 1.0f);
+        else if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+            scene.getCamera().movePositionFixedDistanceAndFixedFocus(1.0f, -1.0f, 0.0f);
+        else if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+            scene.getCamera().movePositionFixedDistanceAndFixedFocus(1.0f, 1.0f, 0.0f);
+
+        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+            double xPos, yPos;
+            glfwGetCursorPos(window, &xPos, &yPos);
+            if (savePositionMouse == glm::vec2(-1, -1)) {
+                savePositionMouse.x = xPos;
+                savePositionMouse.y = yPos;
+            }
+            else {
+                savePositionMouse = currPositionMouse;
+            }
+            
+            currPositionMouse.x = xPos; 
+            currPositionMouse.y = yPos;
+
+            float latitude = savePositionMouse.x - currPositionMouse.x;
+            float longitude = savePositionMouse.y - currPositionMouse.y;
+
+            scene.getCamera().movePositionFixedDistanceAndFixedFocus(1.0f, latitude, longitude);
+        }
+        else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE) {
+            savePositionMouse = glm::vec2(-1, -1);
+        }
+
+
 
         /* Poll for and process events */
         glfwPollEvents();

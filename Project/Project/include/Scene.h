@@ -14,6 +14,7 @@ public:
     void render();
     void addRenderable(Renderable* renderable);
     void setCamera(Camera& m_camera);
+    Camera& getCamera();
 
 private:
     std::vector<Renderable*> m_renderables;

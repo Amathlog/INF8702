@@ -1,10 +1,9 @@
 #include "Moveable.h"
 #include "glm\gtx\transform.hpp"
 
-Moveable::Moveable(){
+Moveable::Moveable(glm::vec3 position) : m_position(position){
     // Init the transform matrix to identity and position to origin
     m_transform = glm::mat4(1.0f);
-    m_position = glm::vec3(0.0f);
 }
 
 void Moveable::setPosition(glm::vec3& position) {
