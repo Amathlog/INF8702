@@ -152,15 +152,15 @@ void Cube::generateBuffers() {
     for (int i = 0; i < 6; i++) {
         m_vertexTexBufferData[12 * i] = 0.0f;
         m_vertexTexBufferData[12 * i + 1] = 1.0f;
-        m_vertexTexBufferData[12 * i + 2] = 1.0f;
-        m_vertexTexBufferData[12 * i + 3] = 1.0f;
-        m_vertexTexBufferData[12 * i + 4] = 0.0f;
-        m_vertexTexBufferData[12 * i + 5] = 0.0f;
+        m_vertexTexBufferData[12 * i + 2] = 0.0f;
+        m_vertexTexBufferData[12 * i + 3] = 0.0f;
+        m_vertexTexBufferData[12 * i + 4] = 1.0f;
+        m_vertexTexBufferData[12 * i + 5] = 1.0f;
         m_vertexTexBufferData[12 * i + 6] = 1.0f;
         m_vertexTexBufferData[12 * i + 7] = 1.0f;
-        m_vertexTexBufferData[12 * i + 8] = 1.0f;
+        m_vertexTexBufferData[12 * i + 8] = 0.0f;
         m_vertexTexBufferData[12 * i + 9] = 0.0f;
-        m_vertexTexBufferData[12 * i + 10] = 0.0f;
+        m_vertexTexBufferData[12 * i + 10] = 1.0f;
         m_vertexTexBufferData[12 * i + 11] = 0.0f;
     }
 
