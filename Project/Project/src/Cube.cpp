@@ -38,6 +38,10 @@ void Cube::draw(Camera& camera) {
     // Should be disable in case of some faces not rendering. 
     //glDisable(GL_DEPTH_TEST);
 
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_FRONT);
+    glFrontFace(GL_CCW);
+
     // Handle the MVP matrix
     Renderable::prepareDrawing(camera);
 
@@ -95,6 +99,8 @@ void Cube::draw(Camera& camera) {
         glDisableVertexAttribArray(0);
 
     glBindVertexArray(0);
+
+    glDisable(GL_CULL_FACE);
 
     glEnable(GL_DEPTH_TEST);
 }
