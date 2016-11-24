@@ -70,7 +70,6 @@ void Camera::setFarClipping(float far) {
 }
 
 void Camera::movePositionFixedDistanceAndFixedFocus(float magnitudeAngle, float latitude, float longitude) {
-    // TODO : Still an issue when theta > PI || theta < 0.0f
     m_viewHasChanged = true;
     glm::vec3 towards = m_position - m_focusPoint;
     float r = glm::distance(m_position, m_focusPoint);
@@ -81,8 +80,7 @@ void Camera::movePositionFixedDistanceAndFixedFocus(float magnitudeAngle, float 
     phi += magnitudeAngle * latitude * PI / 180.0f;
     theta += magnitudeAngle * longitude * ((phi < 0) ? -1.0f : 1.0f) * PI / 180.0f;
     if (theta > PI || theta < 0.0f) {
-        phi += PI;
-        theta = PI - theta;
+        m_up *= -1.0f;
     }
     towards.x = r * sin(theta) * cos(phi);
     towards.y = r * sin(theta) * sin(phi);

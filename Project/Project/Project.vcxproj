@@ -147,6 +147,10 @@
     <ClInclude Include="include\Scene.h" />
     <ClInclude Include="include\Triangle.h" />
     <ClInclude Include="src\fileIO.hpp" />
+    <ClInclude Include="src\Texture.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

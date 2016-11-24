@@ -36,39 +36,43 @@ void Cube::draw(Camera& camera) {
     // Handle the MVP matrix
     Renderable::prepareDrawing(camera);
 
-    glEnableVertexAttribArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer);
+    glBindVertexArray(m_vertexArrayID);
 
-    glVertexAttribPointer(
-        0,                          // attribute 0. No particular reason for 0, but must match the layout in the shader.
-        3,                          // size
-        GL_FLOAT,                   // type
-        GL_FALSE,                   // normalized?
-        0,                          // stride
-        (void*)0);                  // array buffer offset
+        glEnableVertexAttribArray(0);
+        glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer);
+
+        glVertexAttribPointer(
+            0,                          // attribute 0. No particular reason for 0, but must match the layout in the shader.
+            3,                          // size
+            GL_FLOAT,                   // type
+            GL_FALSE,                   // normalized?
+            0,                          // stride
+            (void*)0);                  // array buffer offset
         
-    glEnableVertexAttribArray(1);
-    glBindBuffer(GL_ARRAY_BUFFER, m_vertexColorBuffer);
+        glEnableVertexAttribArray(1);
+        glBindBuffer(GL_ARRAY_BUFFER, m_vertexColorBuffer);
 
-    glVertexAttribPointer(
-        1,                  // attribute 1.
-        3,                  // size
-        GL_FLOAT,           // type
-        GL_FALSE,           // normalized?
-        0,                  // stride
-        (void*)0            // array buffer offset
-        );
+        glVertexAttribPointer(
+            1,                  // attribute 1.
+            3,                  // size
+            GL_FLOAT,           // type
+            GL_FALSE,           // normalized?
+            0,                  // stride
+            (void*)0            // array buffer offset
+            );
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vertexIndiceBuffer);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vertexIndiceBuffer);
 
-    glDrawElements(
-        GL_TRIANGLES,                   // mode
-        36,                             // count
-        GL_UNSIGNED_SHORT,              // type
-        (void*)0);                      // element array buffer offset
+        glDrawElements(
+            GL_TRIANGLES,                   // mode
+            36,                             // count
+            GL_UNSIGNED_SHORT,              // type
+            (void*)0);                      // element array buffer offset
 
-    glDisableVertexAttribArray(1);
-    glDisableVertexAttribArray(0);
+        glDisableVertexAttribArray(1);
+        glDisableVertexAttribArray(0);
+
+    glBindVertexArray(0);
 }
 
 void Cube::generateVertex() {

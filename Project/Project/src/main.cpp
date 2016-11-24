@@ -18,6 +18,8 @@ using namespace glm;
 #include "Scene.h"
 #include "Camera.h"
 
+static const float cameraSensibility = 0.5f;
+
 int main(void)
 {
     GLFWwindow* window;
@@ -102,13 +104,13 @@ int main(void)
 
         // Camera handle (mouse + key arrows)
         if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-            scene.getCamera().movePositionFixedDistanceAndFixedFocus(1.0f, 0.0f, -1.0f);
+            scene.getCamera().movePositionFixedDistanceAndFixedFocus(2.0f*cameraSensibility, 0.0f, -1.0f);
         else if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-            scene.getCamera().movePositionFixedDistanceAndFixedFocus(1.0f, 0.0f, 1.0f);
+            scene.getCamera().movePositionFixedDistanceAndFixedFocus(2.0f*cameraSensibility, 0.0f, 1.0f);
         else if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-            scene.getCamera().movePositionFixedDistanceAndFixedFocus(1.0f, -1.0f, 0.0f);
+            scene.getCamera().movePositionFixedDistanceAndFixedFocus(2.0f*cameraSensibility, -1.0f, 0.0f);
         else if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-            scene.getCamera().movePositionFixedDistanceAndFixedFocus(1.0f, 1.0f, 0.0f);
+            scene.getCamera().movePositionFixedDistanceAndFixedFocus(2.0f*cameraSensibility, 1.0f, 0.0f);
 
         if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
             double xPos, yPos;
@@ -120,14 +122,14 @@ int main(void)
             else {
                 savePositionMouse = currPositionMouse;
             }
-            
-            currPositionMouse.x = xPos; 
+
+            currPositionMouse.x = xPos;
             currPositionMouse.y = yPos;
 
             float latitude = savePositionMouse.x - currPositionMouse.x;
             float longitude = savePositionMouse.y - currPositionMouse.y;
 
-            scene.getCamera().movePositionFixedDistanceAndFixedFocus(1.0f, latitude, longitude);
+            scene.getCamera().movePositionFixedDistanceAndFixedFocus(cameraSensibility, latitude, longitude);
         }
         else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE) {
             savePositionMouse = glm::vec2(-1, -1);
