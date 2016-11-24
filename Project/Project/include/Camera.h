@@ -12,6 +12,8 @@ public:
     // Generate both matrix
     glm::mat4 getProjectionMatrix();
     glm::mat4 getViewMatrix();
+    // Get the direction of the vision
+    glm::vec3 getEye();
 
     // Methods for view matrix
     void setPosition(glm::vec3& position);

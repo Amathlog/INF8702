@@ -1,6 +1,7 @@
 #include "Cube.h"
 #include <iostream>
 #include <ctime>
+#include "Texture.hpp"
 
 Cube::Cube(CNuanceurProg shader, glm::vec3 position, float edgeLength) : Renderable(shader, position), m_edgeLength(edgeLength) {
     init();
@@ -8,7 +9,8 @@ Cube::Cube(CNuanceurProg shader, glm::vec3 position, float edgeLength) : Rendera
 
 void Cube::init() {
 
-    generateVertex();
+    generateBuffers();
+    m_texture = loadBMP("textures/swimmingpool.bmp");
 
     glGenVertexArrays(1, &m_vertexArrayID);
     glBindVertexArray(m_vertexArrayID);
@@ -18,23 +20,37 @@ void Cube::init() {
             glBufferData(GL_ARRAY_BUFFER, m_vertexBufferData.size() * sizeof(GLfloat), &m_vertexBufferData[0], GL_STATIC_DRAW);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-        glGenBuffers(1, &m_vertexColorBuffer);
-        glBindBuffer(GL_ARRAY_BUFFER, m_vertexColorBuffer);
-            glBufferData(GL_ARRAY_BUFFER, m_vertexColorBufferData.size() * sizeof(GLfloat), &m_vertexColorBufferData[0], GL_STATIC_DRAW);
+        glGenBuffers(1, &m_vertexNormalBuffer);
+        glBindBuffer(GL_ARRAY_BUFFER, m_vertexNormalBuffer);
+            glBufferData(GL_ARRAY_BUFFER, m_vertexNormalBufferData.size() * sizeof(GLfloat), &m_vertexNormalBufferData[0], GL_STATIC_DRAW);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-        glGenBuffers(1, &m_vertexIndiceBuffer);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vertexIndiceBuffer);
-            glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(m_vertexIndiceData), m_vertexIndiceData, GL_STATIC_DRAW);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+        glGenBuffers(1, &m_vertexTexBuffer);
+        glBindBuffer(GL_ARRAY_BUFFER, m_vertexTexBuffer);
+        glBufferData(GL_ARRAY_BUFFER, m_vertexTexBufferData.size() * sizeof(GLfloat), &m_vertexTexBufferData[0], GL_STATIC_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     glBindVertexArray(0);
 }
 
 void Cube::draw(Camera& camera) {
 
+    // Should be disable in case of some faces not rendering. 
+    //glDisable(GL_DEPTH_TEST);
+
     // Handle the MVP matrix
     Renderable::prepareDrawing(camera);
+
+    // Get our eye
+    glm::vec3 eye = camera.getEye();
+
+    // Get a handle for our "eye" uniform
+    GLuint eyeHandle = glGetUniformLocation(m_shader.getProg(), "eye");
+
+    // Send our transformation to the currently bound shader, in the "MVP" uniform
+    glUniform3fv(eyeHandle, 1, &eye[0]);
+
+    glBindTexture(GL_TEXTURE_2D, m_texture);
 
     glBindVertexArray(m_vertexArrayID);
 
@@ -50,7 +66,7 @@ void Cube::draw(Camera& camera) {
             (void*)0);                  // array buffer offset
         
         glEnableVertexAttribArray(1);
-        glBindBuffer(GL_ARRAY_BUFFER, m_vertexColorBuffer);
+        glBindBuffer(GL_ARRAY_BUFFER, m_vertexNormalBuffer);
 
         glVertexAttribPointer(
             1,                  // attribute 1.
@@ -61,27 +77,35 @@ void Cube::draw(Camera& camera) {
             (void*)0            // array buffer offset
             );
 
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vertexIndiceBuffer);
+        glEnableVertexAttribArray(2);
+        glBindBuffer(GL_ARRAY_BUFFER, m_vertexTexBuffer);
 
-        glDrawElements(
-            GL_TRIANGLES,                   // mode
-            36,                             // count
-            GL_UNSIGNED_SHORT,              // type
-            (void*)0);                      // element array buffer offset
+        glVertexAttribPointer(
+            2,                  // attribute 2.
+            2,                  // size
+            GL_FLOAT,           // type
+            GL_FALSE,           // normalized?
+            0,                  // stride
+            (void*)0            // array buffer offset
+            );
+
+        glDrawArrays(GL_TRIANGLES, 0, m_vertexBufferData.size());
 
         glDisableVertexAttribArray(1);
         glDisableVertexAttribArray(0);
 
     glBindVertexArray(0);
+
+    glEnable(GL_DEPTH_TEST);
 }
 
-void Cube::generateVertex() {
+void Cube::generateBuffers() {
     GLfloat offset = m_edgeLength / 2.0f;
     GLfloat px = m_position.x;
     GLfloat py = m_position.y;
     GLfloat pz = m_position.z;
 
-    m_vertexBufferData = std::vector<GLfloat>{ 
+    std::vector<GLfloat> verteces{
         px - offset, py + offset, pz - offset,
         px + offset, py + offset, pz - offset,
         px + offset, py + offset, pz + offset,
@@ -91,11 +115,47 @@ void Cube::generateVertex() {
         px + offset, py - offset, pz + offset,
         px - offset, py - offset, pz + offset };
 
-    m_vertexColorBufferData.resize(12 * 3 * 3);
+    std::vector<GLfloat> normales{
+        1.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 1.0f,
+        -1.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, -1.0f,
+        0.0f, 1.0f, 0.0f,
+        0.0f, -1.0f, 0.0f,
+    };
 
-    srand(time(NULL));
-    for (int i = 0; i < m_vertexColorBufferData.size(); i++) {
-        m_vertexColorBufferData[i] = float(rand()) / RAND_MAX;
+    m_vertexBufferData.resize(12 * 3 * 3);
+    m_vertexNormalBufferData.resize(12 * 3 * 3);
+    m_vertexTexBufferData.resize(12 * 3 * 2);
+
+    for (int i = 0; i < 36; i++) {
+        m_vertexBufferData[3 * i] = verteces[3 * m_vertexIndiceData[i]];
+        m_vertexBufferData[3 * i + 1] = verteces[3 * m_vertexIndiceData[i] + 1];
+        m_vertexBufferData[3 * i + 2] = verteces[3 * m_vertexIndiceData[i] + 2];
+    }
+
+    for (int i = 0; i < 6; i++) {
+        for (int j = 0; j < 6; j++) {
+            for (int k = 0; k < 3; k++) {
+                m_vertexNormalBufferData[6 * i + 3 * j + k] = normales[3*j + k];
+            }
+            
+        }
+    }
+
+    for (int i = 0; i < 6; i++) {
+        m_vertexTexBufferData[12 * i] = 0.0f;
+        m_vertexTexBufferData[12 * i + 1] = 1.0f;
+        m_vertexTexBufferData[12 * i + 2] = 1.0f;
+        m_vertexTexBufferData[12 * i + 3] = 1.0f;
+        m_vertexTexBufferData[12 * i + 4] = 0.0f;
+        m_vertexTexBufferData[12 * i + 5] = 0.0f;
+        m_vertexTexBufferData[12 * i + 6] = 1.0f;
+        m_vertexTexBufferData[12 * i + 7] = 1.0f;
+        m_vertexTexBufferData[12 * i + 8] = 1.0f;
+        m_vertexTexBufferData[12 * i + 9] = 0.0f;
+        m_vertexTexBufferData[12 * i + 10] = 0.0f;
+        m_vertexTexBufferData[12 * i + 11] = 0.0f;
     }
 
 }

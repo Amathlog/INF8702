@@ -1,5 +1,7 @@
 // https://github.com/opengl-tutorials/ogl/blob/master/common/texture.cpp
 
+#define _CRT_SECURE_NO_WARNINGS 
+
 #include <GL/glew.h>
 #include "stdlib.h"
 #include "stdio.h"

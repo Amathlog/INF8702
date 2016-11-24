@@ -17,6 +17,7 @@ using namespace glm;
 #include "NuanceurProg.h"
 #include "Scene.h"
 #include "Camera.h"
+#include "Line.h"
 
 static const float cameraSensibility = 0.5f;
 
@@ -64,6 +65,7 @@ int main(void)
     // Load shaders
     CNuanceurProg triangleShader{ "shaders/triangle.vert", "shaders/triangle.frag", true };
     CNuanceurProg cubeShader{ "shaders/cube.vert", "shaders/cube.frag", true };
+    CNuanceurProg lineShader{ "shaders/line.vert", "shaders/line.frag", true };
 
     // Create our scene
     Scene scene;
@@ -84,10 +86,12 @@ int main(void)
     //scene.addRenderable(&triangle);
 
     // Create cube
-    Cube cube1(cubeShader, glm::vec3(-1.0f, 0.0f, 0.0f), 0.5f);
+    Cube cube1(cubeShader, glm::vec3(0.0f, 0.0f, 0.0f), 2.0f);
     scene.addRenderable(&cube1);
-    Cube cube2(cubeShader, glm::vec3(1.0f, 0.0f, 0.0f), 1.0f);
-    scene.addRenderable(&cube2);
+    Line line1(lineShader, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f), 1);
+    scene.addRenderable(&line1);
+    Line line2(lineShader, glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), 1);
+    scene.addRenderable(&line2);
 
     // Mouse positions
     glm::vec2 savePositionMouse = glm::vec2(-1, -1);

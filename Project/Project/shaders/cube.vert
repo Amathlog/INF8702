@@ -1,14 +1,17 @@
 #version 400 core
 
 layout(location = 0) in vec3 vp;
-layout(location = 1) in vec3 vc;
+layout(location = 1) in vec3 vn;
+layout(location = 2) in vec2 vt;
 
 uniform mat4 MVP;
+uniform vec3 eye;
 
-out vec3 fragColor;
+out vec2 fragTex;
+out vec3 normal;
 
 void main(){
-
+    normal = vn;
     gl_Position = MVP * vec4(vp, 1.0);
-    fragColor = vc;
+    fragTex = vt;
 }

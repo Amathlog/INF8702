@@ -88,3 +88,7 @@ void Camera::movePositionFixedDistanceAndFixedFocus(float magnitudeAngle, float 
 
     m_position = towards + m_focusPoint;
 }
+
+glm::vec3 Camera::getEye() {
+    return glm::normalize(m_focusPoint - m_position);
+}

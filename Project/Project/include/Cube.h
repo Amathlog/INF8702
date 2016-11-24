@@ -17,7 +17,7 @@ public:
 private:
     void init();
 
-    void generateVertex();
+    void generateBuffers();
 
     // An array of 3 vectors which represents 3 vertices
     std::vector<GLfloat> m_vertexBufferData;
@@ -47,12 +47,16 @@ private:
         5,6,7
     };
 
-    std::vector<GLfloat> m_vertexColorBufferData;
+    std::vector<GLfloat> m_vertexNormalBufferData;
+    std::vector<GLfloat> m_vertexTexBufferData;
 
     GLuint m_vertexArrayID;
     GLuint m_vertexBuffer;
-    GLuint m_vertexColorBuffer;
+    GLuint m_vertexNormalBuffer;
+    GLuint m_vertexTexBuffer;
     GLuint m_vertexIndiceBuffer;
+
+    GLuint m_texture;
 
     float m_edgeLength;
 };
