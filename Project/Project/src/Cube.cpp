@@ -106,14 +106,14 @@ void Cube::generateBuffers() {
     GLfloat pz = m_position.z;
 
     std::vector<GLfloat> verteces{
-        px - offset, py + offset, pz - offset,
-        px + offset, py + offset, pz - offset,
-        px + offset, py + offset, pz + offset,
         px - offset, py + offset, pz + offset,
-        px - offset, py - offset, pz - offset,
-        px + offset, py - offset, pz - offset,
+        px + offset, py + offset, pz + offset,
+        px + offset, py + offset, pz - offset,
+        px - offset, py + offset, pz - offset,
+        px - offset, py - offset, pz + offset,
         px + offset, py - offset, pz + offset,
-        px - offset, py - offset, pz + offset };
+        px + offset, py - offset, pz - offset,
+        px - offset, py - offset, pz - offset };
 
     std::vector<GLfloat> normales{
         1.0f, 0.0f, 0.0f,
