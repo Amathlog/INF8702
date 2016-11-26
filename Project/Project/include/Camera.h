@@ -21,6 +21,7 @@ public:
     void setUp(glm::vec3& up);
     // Movement
     void movePositionFixedDistanceAndFixedFocus(float magnitudeAngle, float latitude, float longitude);
+    void zoom(float value);
 
     // Methods for projection matrix
     void setFOV(float fov);

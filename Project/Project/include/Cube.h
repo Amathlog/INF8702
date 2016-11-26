@@ -32,7 +32,7 @@ private:
           |/      |/
           4-------5
 */
-    const unsigned short m_vertexIndiceData[36] = {
+    const unsigned short m_vertexIndiceData[30] = {
         0,4,1,
         1,4,5,
         1,5,2,
@@ -41,8 +41,6 @@ private:
         3,6,7,
         3,7,0,
         0,7,4,
-        0,1,3,
-        1,2,3,
         4,7,5,
         5,7,6
     };

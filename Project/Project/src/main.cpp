@@ -10,7 +10,7 @@
 
 // Include GLM
 #include <glm/glm.hpp>
-using namespace glm;
+
 
 #include "Triangle.h"
 #include "Cube.h"
@@ -18,8 +18,7 @@ using namespace glm;
 #include "Scene.h"
 #include "Camera.h"
 #include "Line.h"
-
-static const float cameraSensibility = 0.5f;
+#include "../include/Control.h"
 
 int main(void)
 {
@@ -86,16 +85,17 @@ int main(void)
     //scene.addRenderable(&triangle);
 
     // Create cube
-    Cube cube1(cubeShader, glm::vec3(0.0f, 0.0f, 0.0f), 2.0f);
+    Cube cube1(cubeShader, glm::vec3(0.0f, 0.0f, 0.0f), 3.0f);
     scene.addRenderable(&cube1);
-    Line line1(lineShader, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f), 1);
+    /*Line line1(lineShader, glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f), 1);
     scene.addRenderable(&line1);
-    Line line2(lineShader, glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), 1);
-    scene.addRenderable(&line2);
+    Line line2(lineShader, glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f), 1);
+    scene.addRenderable(&line2);*/
 
-    // Mouse positions
-    glm::vec2 savePositionMouse = glm::vec2(-1, -1);
-    glm::vec2 currPositionMouse;
+    // Create the control
+    Control& control = Control::getInstance();
+    control.setWindowAndScene(window, &scene);
+
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window) && glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS)
@@ -107,39 +107,8 @@ int main(void)
         glfwSwapBuffers(window);
 
         // Camera handle (mouse + key arrows)
-        if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-            scene.getCamera().movePositionFixedDistanceAndFixedFocus(2.0f*cameraSensibility, 0.0f, -1.0f);
-        else if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-            scene.getCamera().movePositionFixedDistanceAndFixedFocus(2.0f*cameraSensibility, 0.0f, 1.0f);
-        else if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-            scene.getCamera().movePositionFixedDistanceAndFixedFocus(2.0f*cameraSensibility, -1.0f, 0.0f);
-        else if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-            scene.getCamera().movePositionFixedDistanceAndFixedFocus(2.0f*cameraSensibility, 1.0f, 0.0f);
-
-        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
-            double xPos, yPos;
-            glfwGetCursorPos(window, &xPos, &yPos);
-            if (savePositionMouse == glm::vec2(-1, -1)) {
-                savePositionMouse.x = xPos;
-                savePositionMouse.y = yPos;
-            }
-            else {
-                savePositionMouse = currPositionMouse;
-            }
-
-            currPositionMouse.x = xPos;
-            currPositionMouse.y = yPos;
-
-            float latitude = savePositionMouse.x - currPositionMouse.x;
-            float longitude = savePositionMouse.y - currPositionMouse.y;
-
-            scene.getCamera().movePositionFixedDistanceAndFixedFocus(cameraSensibility, latitude, longitude);
-        }
-        else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE) {
-            savePositionMouse = glm::vec2(-1, -1);
-        }
-
-
+        control.keyRotate();
+        control.rotate();
 
         /* Poll for and process events */
         glfwPollEvents();

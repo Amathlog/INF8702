@@ -89,6 +89,15 @@ void Camera::movePositionFixedDistanceAndFixedFocus(float magnitudeAngle, float 
     m_position = towards + m_focusPoint;
 }
 
+void Camera::zoom(float value) {
+    m_viewHasChanged = true;
+    glm::vec3 towards = glm::normalize(m_position - m_focusPoint);
+    if (glm::distance(m_position, m_focusPoint) < abs(value) && value < 0) {
+        return;
+    }
+    m_position = m_position + towards * value;
+}
+
 glm::vec3 Camera::getEye() {
     return glm::normalize(m_focusPoint - m_position);
 }

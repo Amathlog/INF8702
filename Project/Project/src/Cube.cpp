@@ -112,13 +112,13 @@ void Cube::generateBuffers() {
     GLfloat pz = m_position.z;
 
     std::vector<GLfloat> verteces{
-        px - offset, py + offset, pz + offset,
+        px + offset, py - offset, pz + offset,
         px + offset, py + offset, pz + offset,
+        px - offset, py + offset, pz + offset,
+        px - offset, py - offset, pz + offset,
+        px + offset, py - offset, pz - offset,
         px + offset, py + offset, pz - offset,
         px - offset, py + offset, pz - offset,
-        px - offset, py - offset, pz + offset,
-        px + offset, py - offset, pz + offset,
-        px + offset, py - offset, pz - offset,
         px - offset, py - offset, pz - offset };
 
     std::vector<GLfloat> normales{
@@ -126,30 +126,29 @@ void Cube::generateBuffers() {
         0.0f, 0.0f, 1.0f,
         -1.0f, 0.0f, 0.0f,
         0.0f, 0.0f, -1.0f,
-        0.0f, 1.0f, 0.0f,
         0.0f, -1.0f, 0.0f,
     };
 
-    m_vertexBufferData.resize(12 * 3 * 3);
-    m_vertexNormalBufferData.resize(12 * 3 * 3);
-    m_vertexTexBufferData.resize(12 * 3 * 2);
+    m_vertexBufferData.resize(10 * 3 * 3);
+    m_vertexNormalBufferData.resize(10 * 3 * 3);
+    m_vertexTexBufferData.resize(10 * 3 * 2);
 
-    for (int i = 0; i < 36; i++) {
+    for (int i = 0; i < 30; i++) {
         m_vertexBufferData[3 * i] = verteces[3 * m_vertexIndiceData[i]];
         m_vertexBufferData[3 * i + 1] = verteces[3 * m_vertexIndiceData[i] + 1];
         m_vertexBufferData[3 * i + 2] = verteces[3 * m_vertexIndiceData[i] + 2];
     }
 
-    for (int i = 0; i < 6; i++) {
-        for (int j = 0; j < 6; j++) {
+    for (int i = 0; i < 5; i++) {
+        for (int j = 0; j < 5; j++) {
             for (int k = 0; k < 3; k++) {
-                m_vertexNormalBufferData[6 * i + 3 * j + k] = normales[3*j + k];
+                m_vertexNormalBufferData[5 * i + 3 * j + k] = normales[3*j + k];
             }
             
         }
     }
 
-    for (int i = 0; i < 6; i++) {
+    for (int i = 0; i < 5; i++) {
         m_vertexTexBufferData[12 * i] = 0.0f;
         m_vertexTexBufferData[12 * i + 1] = 1.0f;
         m_vertexTexBufferData[12 * i + 2] = 0.0f;
