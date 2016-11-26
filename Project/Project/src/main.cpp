@@ -19,6 +19,7 @@
 #include "Camera.h"
 #include "Line.h"
 #include "../include/Control.h"
+#include "Watergrid.h"
 
 int main(void)
 {
@@ -65,6 +66,7 @@ int main(void)
     CNuanceurProg triangleShader{ "shaders/triangle.vert", "shaders/triangle.frag", true };
     CNuanceurProg cubeShader{ "shaders/cube.vert", "shaders/cube.frag", true };
     CNuanceurProg lineShader{ "shaders/line.vert", "shaders/line.frag", true };
+    CNuanceurProg waterGridShader{ "shaders/waterGrid.vert", "shaders/waterGrid.frag", true };
 
     // Create our scene
     Scene scene;
@@ -84,13 +86,18 @@ int main(void)
     // Add it to the scene
     //scene.addRenderable(&triangle);
 
-    // Create cube
-    Cube cube1(cubeShader, glm::vec3(0.0f, 0.0f, 0.0f), 3.0f);
+    // Create cube  
+    float cubeEdgeLength = 3.0f;
+    Cube cube1(cubeShader, glm::vec3(0.0f, 0.0f, 0.0f), cubeEdgeLength);
     scene.addRenderable(&cube1);
     /*Line line1(lineShader, glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f), 1);
     scene.addRenderable(&line1);
     Line line2(lineShader, glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f), 1);
     scene.addRenderable(&line2);*/
+
+    // Create watergrid
+    WaterGrid waterGrid(waterGridShader, glm::vec3(0.0f, 0.0f, 0.9f), 50, 50, cubeEdgeLength, cubeEdgeLength);
+    scene.addRenderable(&waterGrid);
 
     // Create the control
     Control& control = Control::getInstance();

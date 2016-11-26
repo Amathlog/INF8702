@@ -95,6 +95,7 @@ void Cube::draw(Camera& camera) {
 
         glDrawArrays(GL_TRIANGLES, 0, m_vertexBufferData.size());
 
+        glDisableVertexAttribArray(2);
         glDisableVertexAttribArray(1);
         glDisableVertexAttribArray(0);
 
