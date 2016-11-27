@@ -7,13 +7,12 @@
 
 WaterGrid::WaterGrid(CNuanceurProg shader, glm::vec3 position, int subdivX, int subdivY, float height, float width) : Renderable(shader, position), 
                                                                                             m_subdivX(subdivX), m_subdivY(subdivY), m_height(height), m_width(width) {
+    generateGrid();
     init();
     m_perturbationPoint = m_position;
 }
 
 void WaterGrid::init() {
-    generateGrid();
-
     glGenVertexArrays(1, &m_vertexArrayID);
     glBindVertexArray(m_vertexArrayID);
 
@@ -71,6 +70,20 @@ void WaterGrid::generateGrid() {
                 m_vertexNormalBufferData[i*m_subdivY + 18 * j + k * 3 + 2] = 1.0f;
             }
             
+        }
+    }
+
+    m_heights.resize(m_subdivX);
+    m_velocities.resize(m_subdivX);
+    m_newHeights.resize(m_subdivX);
+    for (int i = 0; i < m_subdivX; i++) {
+        m_heights[i].resize(m_subdivY);
+        m_velocities[i].resize(m_subdivY);
+        m_newHeights[i].resize(m_subdivY);
+        for (int j = 0; j < m_subdivY; j++) {
+            m_heights[i][j] = m_position.z;
+            m_velocities[i][j] = 0.0f;
+            m_newHeights[i][j] = 0.0f;
         }
     }
 }
@@ -145,3 +158,15 @@ void WaterGrid::perturbation() {
         m_t = 0.0f;
     }
 }
+
+void WaterGrid::computeNextStep() {
+    for (int i = 1; i < m_subdivX - 1; i++) {
+        for (int j = 1; j < m_subdivY - 1; j++) {
+            float f = m_velocity * (m_heights[i + 1][j] + m_heights[i - 1][j] + m_heights[i][j + 1] + m_heights[i][j - 1] - 4 * m_heights[i][j]);
+            m_velocities[i][j] += f * m_dt;
+            m_newHeights[i][j] = m_heights[i][j] + m_velocities[i][j] * m_dt;
+        }
+    }
+    m_heights = m_newHeights;
+}
+

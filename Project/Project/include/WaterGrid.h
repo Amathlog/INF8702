@@ -17,6 +17,7 @@ private:
     void generateGrid();
     void init();
     void perturbation();
+    void computeNextStep();
 
     std::vector<GLfloat> m_vertexBufferData;
 
@@ -38,6 +39,13 @@ private:
     float m_attenuation = 4.0f;
     float m_waveLength = 0.2f;
     glm::vec3 m_perturbationPoint;
+
+    std::vector<std::vector<float>> m_velocities;
+    std::vector<std::vector<float>> m_heights;
+    std::vector<std::vector<float>> m_newHeights;
+
+    float m_velocity = 0.5f;
+    float m_dt = 0.1f;
 
 };
 
