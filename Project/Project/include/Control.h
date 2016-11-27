@@ -5,6 +5,7 @@
 #include <glm/vec2.hpp>
 
 class Scene;
+class WaterGrid;
 struct GLFWwindow;
 
 class Control {
@@ -18,13 +19,20 @@ public:
         getInstance().zoomImpl(window, xoffset, yoffset);
     }
     void zoomImpl(GLFWwindow* window, double xoffset, double yoffset);
-    void rotate();
-    void keyRotate();
+
     void setWindowAndScene(GLFWwindow* window, Scene* scene);
+    void setGrid(WaterGrid* grid);
+    void processEvents();
 private:
     Control();
+
+    void rotate();
+    void keyRotate();
+    void addWaterPerturbation();
+
     GLFWwindow* m_window;
     Scene* m_scene;
+    WaterGrid* m_grid;
     // Mouse positions
     glm::vec2 m_savePositionMouse = glm::vec2(-1, -1);
     glm::vec2 m_currPositionMouse;

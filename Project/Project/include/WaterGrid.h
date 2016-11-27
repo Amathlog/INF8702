@@ -12,12 +12,14 @@ class WaterGrid : public Renderable{
 public:
     WaterGrid(CNuanceurProg shader, glm::vec3 position, int subdivX, int subdivY, float height, float width);
     void draw(Camera& camera);
+    void addPerturbation();
 
 private:
     void generateGrid();
     void init();
     void perturbation();
     void computeNextStep();
+    void refreshHeightsBuffer();
 
     std::vector<GLfloat> m_vertexBufferData;
 
@@ -26,6 +28,7 @@ private:
     GLuint m_vertexArrayID;
     GLuint m_vertexBuffer;
     GLuint m_vertexNormalBuffer;
+    GLuint m_vertexHeightBuffer;
 
     int m_subdivX;
     int m_subdivY;
@@ -40,13 +43,12 @@ private:
     float m_waveLength = 0.2f;
     glm::vec3 m_perturbationPoint;
 
-    std::vector<std::vector<float>> m_velocities;
-    std::vector<std::vector<float>> m_heights;
-    std::vector<std::vector<float>> m_newHeights;
+    std::vector<std::vector<GLfloat>> m_velocities;
+    std::vector<std::vector<GLfloat>> m_heights;
+    std::vector<std::vector<GLfloat>> m_newHeights;
 
-    float m_velocity = 0.5f;
-    float m_dt = 0.1f;
-
+    float m_velocity = 10.0f;
+    float m_dt = 0.01f;
 };
 
 #endif

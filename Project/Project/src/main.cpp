@@ -102,6 +102,7 @@ int main(void)
     // Create the control
     Control& control = Control::getInstance();
     control.setWindowAndScene(window, &scene);
+    control.setGrid(&waterGrid);
 
 
     /* Loop until the user closes the window */
@@ -114,8 +115,7 @@ int main(void)
         glfwSwapBuffers(window);
 
         // Camera handle (mouse + key arrows)
-        control.keyRotate();
-        control.rotate();
+        control.processEvents();
 
         /* Poll for and process events */
         glfwPollEvents();

@@ -26,7 +26,28 @@ void WaterGrid::init() {
             glBufferData(GL_ARRAY_BUFFER, m_vertexNormalBufferData.size() * sizeof(GLfloat), &m_vertexNormalBufferData[0], GL_STATIC_DRAW);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+        glGenBuffers(1, &m_vertexHeightBuffer);
+        refreshHeightsBuffer();
+
     glBindVertexArray(0);
+}
+
+void WaterGrid::refreshHeightsBuffer() {
+    std::vector<GLfloat> heightBufferData(m_vertexBufferData.size() / 3);
+    for (int i = 0; i < m_subdivX; i++) {
+        for (int j = 0; j < m_subdivY; j++) {
+            heightBufferData[i * m_subdivY * 6 + j * 6] = m_heights[i][j];
+            heightBufferData[i * m_subdivY * 6 + j * 6 + 1] = m_heights[i+1][j];
+            heightBufferData[i * m_subdivY * 6 + j * 6 + 2] = m_heights[i+1][j+1];
+            heightBufferData[i * m_subdivY * 6 + j * 6 + 3] = m_heights[i][j];
+            heightBufferData[i * m_subdivY * 6 + j * 6 + 4] = m_heights[i+1][j+1];
+            heightBufferData[i * m_subdivY * 6 + j * 6 + 5] = m_heights[i][j+1];
+        }
+    }
+
+    glBindBuffer(GL_ARRAY_BUFFER, m_vertexHeightBuffer);
+        glBufferData(GL_ARRAY_BUFFER, heightBufferData.size() * sizeof(GLfloat), &heightBufferData[0], GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void WaterGrid::generateGrid() {
@@ -73,15 +94,15 @@ void WaterGrid::generateGrid() {
         }
     }
 
-    m_heights.resize(m_subdivX);
-    m_velocities.resize(m_subdivX);
-    m_newHeights.resize(m_subdivX);
-    for (int i = 0; i < m_subdivX; i++) {
-        m_heights[i].resize(m_subdivY);
-        m_velocities[i].resize(m_subdivY);
-        m_newHeights[i].resize(m_subdivY);
-        for (int j = 0; j < m_subdivY; j++) {
-            m_heights[i][j] = m_position.z;
+    m_heights.resize(m_subdivX+1);
+    m_velocities.resize(m_subdivX + 1);
+    m_newHeights.resize(m_subdivX + 1);
+    for (int i = 0; i < m_subdivX + 1; i++) {
+        m_heights[i].resize(m_subdivY + 1);
+        m_velocities[i].resize(m_subdivY + 1);
+        m_newHeights[i].resize(m_subdivY + 1);
+        for (int j = 0; j < m_subdivY + 1; j++) {
+            m_heights[i][j] = 0.0f;
             m_velocities[i][j] = 0.0f;
             m_newHeights[i][j] = 0.0f;
         }
@@ -95,6 +116,9 @@ void WaterGrid::draw(Camera& camera) {
 
     // Handle perturbation
     perturbation();
+
+    computeNextStep();
+    refreshHeightsBuffer();
     
 
     glBindVertexArray(m_vertexArrayID);
@@ -122,8 +146,21 @@ void WaterGrid::draw(Camera& camera) {
             (void*)0            // array buffer offset
             );
 
+        glEnableVertexAttribArray(2);
+        glBindBuffer(GL_ARRAY_BUFFER, m_vertexHeightBuffer);
+
+        glVertexAttribPointer(
+            2,                  // attribute 1.
+            1,                  // size
+            GL_FLOAT,           // type
+            GL_FALSE,           // normalized?
+            0,                  // stride
+            (void*)0            // array buffer offset
+            );
+
         glDrawArrays(GL_TRIANGLES, 0, m_vertexBufferData.size());
 
+        glDisableVertexAttribArray(2);
         glDisableVertexAttribArray(1);
         glDisableVertexAttribArray(0);
 
@@ -160,13 +197,17 @@ void WaterGrid::perturbation() {
 }
 
 void WaterGrid::computeNextStep() {
-    for (int i = 1; i < m_subdivX - 1; i++) {
-        for (int j = 1; j < m_subdivY - 1; j++) {
+    for (int i = 1; i < m_subdivX; i++) {
+        for (int j = 1; j < m_subdivY; j++) {
             float f = m_velocity * (m_heights[i + 1][j] + m_heights[i - 1][j] + m_heights[i][j + 1] + m_heights[i][j - 1] - 4 * m_heights[i][j]);
             m_velocities[i][j] += f * m_dt;
             m_newHeights[i][j] = m_heights[i][j] + m_velocities[i][j] * m_dt;
         }
     }
     m_heights = m_newHeights;
+}
+
+void WaterGrid::addPerturbation() {
+    m_heights[m_subdivX / 2][m_subdivY / 2] = -0.5f;
 }
 

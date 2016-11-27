@@ -1,5 +1,6 @@
 #include "../include/Control.h"
 #include "Scene.h"
+#include "Watergrid.h"
 #include <GLFW/glfw3.h>
 #include <iostream>
 
@@ -59,4 +60,20 @@ void Control::setWindowAndScene(GLFWwindow* window, Scene* scene) {
     m_window = window;
     m_scene = scene;
     glfwSetScrollCallback(window, &Control::zoom);
+}
+
+void Control::addWaterPerturbation() {
+    if (glfwGetKey(m_window, GLFW_KEY_P) == GLFW_PRESS) {
+        m_grid->addPerturbation();
+    }
+}
+
+void Control::setGrid(WaterGrid* grid) {
+    m_grid = grid;
+}
+
+void Control::processEvents() {
+    rotate();
+    keyRotate();
+    addWaterPerturbation();
 }
