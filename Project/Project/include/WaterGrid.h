@@ -7,12 +7,15 @@
 #include <GL/glew.h>
 #include "Renderable.h"
 #include "glm\vec3.hpp"
+#include "Cube.h"
 
 class WaterGrid : public Renderable{
 public:
     WaterGrid(CNuanceurProg shader, glm::vec3 position, int subdivX, int subdivY, float height, float width);
     void draw(Camera& camera);
     void addPerturbation();
+
+    void setCube(Cube* cube);
 
 private:
     void generateGrid();
@@ -46,9 +49,10 @@ private:
     std::vector<std::vector<GLfloat>> m_velocities;
     std::vector<std::vector<GLfloat>> m_heights;
     std::vector<std::vector<GLfloat>> m_newHeights;
+    std::vector<std::vector<glm::vec2>> m_newNormals;
 
-    float m_velocity = 10.0f;
-    float m_dt = 0.01f;
+    Cube* m_cube;
+    GLuint m_texture;
 };
 
 #endif

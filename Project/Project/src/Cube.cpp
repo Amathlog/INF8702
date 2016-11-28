@@ -2,6 +2,8 @@
 #include <iostream>
 #include <ctime>
 #include "Texture.hpp"
+#include "WaterGrid.h"
+
 
 Cube::Cube(CNuanceurProg shader, glm::vec3 position, float edgeLength) : Renderable(shader, position), m_edgeLength(edgeLength) {
     init();
@@ -10,7 +12,7 @@ Cube::Cube(CNuanceurProg shader, glm::vec3 position, float edgeLength) : Rendera
 void Cube::init() {
 
     generateBuffers();
-    m_texture = loadBMP("textures/swimmingpool.bmp");
+    m_texture = Texture::loadBMP("textures/swimmingpool.bmp");
 
     glGenVertexArrays(1, &m_vertexArrayID);
     glBindVertexArray(m_vertexArrayID);
@@ -50,9 +52,11 @@ void Cube::draw(Camera& camera) {
 
     // Get a handle for our "eye" uniform
     GLuint eyeHandle = glGetUniformLocation(m_shader.getProg(), "eye");
-
-    // Send our transformation to the currently bound shader, in the "MVP" uniform
     glUniform3fv(eyeHandle, 1, &eye[0]);
+
+    // Get a handle for our "heightMax" uniform
+    GLuint handle = glGetUniformLocation(m_shader.getProg(), "heightMax");
+    glUniform1f(handle, m_watergrid->getPosition().z);
 
     glBindTexture(GL_TEXTURE_2D, m_texture);
 
@@ -164,4 +168,12 @@ void Cube::generateBuffers() {
         m_vertexTexBufferData[12 * i + 11] = 0.0f;
     }
 
+}
+
+float Cube::getEdgeLength() {
+    return m_edgeLength;
+}
+
+void Cube::setWaterGrid(WaterGrid* grid) {
+    m_watergrid = grid;
 }

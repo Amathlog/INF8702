@@ -1,8 +1,8 @@
 #include "../include/Control.h"
 #include "Scene.h"
-#include "Watergrid.h"
 #include <GLFW/glfw3.h>
 #include <iostream>
+#include "WaterGrid.h"
 
 Control::Control() : m_window(nullptr), m_scene(nullptr) {
 

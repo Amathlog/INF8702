@@ -8,11 +8,17 @@
 #include "glm\vec3.hpp"
 #include <vector>
 
+class WaterGrid;
+
 class Cube : public Renderable {
 
 public:
     Cube(CNuanceurProg shader, glm::vec3 position = glm::vec3(0.0f), float edgeLength = 2.0f);
     void draw(Camera& camera);
+
+    float getEdgeLength();
+
+    void setWaterGrid(WaterGrid* watergrid);
 
 private:
     void init();
@@ -57,6 +63,8 @@ private:
     GLuint m_texture;
 
     float m_edgeLength;
+
+    WaterGrid* m_watergrid;
 };
 
 #endif

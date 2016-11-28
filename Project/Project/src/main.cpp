@@ -21,6 +21,9 @@
 #include "../include/Control.h"
 #include "Watergrid.h"
 
+const unsigned int width = 1920;
+const unsigned int height = 1080;
+
 int main(void)
 {
     GLFWwindow* window;
@@ -30,7 +33,7 @@ int main(void)
         return -1;
 
     /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
+    window = glfwCreateWindow(1920, 1080, "Hello World", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
@@ -97,6 +100,8 @@ int main(void)
 
     // Create watergrid
     WaterGrid waterGrid(waterGridShader, glm::vec3(0.0f, 0.0f, 0.9f), 50, 50, cubeEdgeLength, cubeEdgeLength);
+    waterGrid.setCube(&cube1);
+    cube1.setWaterGrid(&waterGrid);
     scene.addRenderable(&waterGrid);
 
     // Create the control
@@ -104,6 +109,7 @@ int main(void)
     control.setWindowAndScene(window, &scene);
     control.setGrid(&waterGrid);
 
+    glViewport(0, 0, width, height);
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window) && glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS)
