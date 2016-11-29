@@ -10,7 +10,6 @@ WaterGrid::WaterGrid(CNuanceurProg shader, glm::vec3 position, int subdivX, int 
                                                                                             m_subdivX(subdivX), m_subdivY(subdivY), m_height(height), m_width(width) {
     generateGrid();
     init();
-    m_perturbationPoint = m_position;
     m_texture = Texture::loadBMP("textures/swimmingpool.bmp");
 }
 
@@ -141,10 +140,7 @@ void WaterGrid::generateGrid() {
 void WaterGrid::draw(Camera& camera) {
     // Handle the MVP matrix
     Renderable::prepareDrawing(camera);
-
-    // Handle perturbation
-    perturbation();
-
+    
     computeNextStep();
     refreshHeightsBuffer();
     
@@ -202,35 +198,6 @@ void WaterGrid::draw(Camera& camera) {
         glDisableVertexAttribArray(0);
 
     glBindVertexArray(0);
-}
-
-void WaterGrid::perturbation() {
-
-    //// Get a handle for our "pertubationPoint" uniform
-    GLuint handle = glGetUniformLocation(m_shader.getProg(), "perturbationPoint");
-    glUniform3fv(handle, 1, &m_perturbationPoint[0]);
-
-    //// Get a handle for our "t" uniform
-    handle = glGetUniformLocation(m_shader.getProg(), "t");
-    glUniform1f(handle, m_t);
-    //std::cout << float(m_t) / m_period * 2.0f * M_PI << std::endl;
-
-    //// Get a handle for our "maxPerturbation" uniform
-    handle = glGetUniformLocation(m_shader.getProg(), "maxPerturbation");
-    glUniform1f(handle, m_pertubation);
-
-    //// Get a handle for our "attenuation" uniform
-    handle = glGetUniformLocation(m_shader.getProg(), "attenuation");
-    glUniform1f(handle, m_attenuation);
-
-    //// Get a handle for our "attenuation" uniform
-    handle = glGetUniformLocation(m_shader.getProg(), "waveLength");
-    glUniform1f(handle, m_waveLength);
-
-    m_t += 1 / float(m_period) * 2.0f * M_PI;
-    if (m_t > m_period) {
-        m_t = 0.0f;
-    }
 }
 
 void WaterGrid::computeNextStep() {

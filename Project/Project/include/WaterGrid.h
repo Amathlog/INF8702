@@ -20,7 +20,6 @@ public:
 private:
     void generateGrid();
     void init();
-    void perturbation();
     void computeNextStep();
     void refreshHeightsBuffer();
 
@@ -38,14 +37,7 @@ private:
 
     float m_height;
     float m_width;
-
-    float m_t = 0.0f;
-    int m_period = 20;
-    float m_pertubation = 0.2f;
-    float m_attenuation = 4.0f;
-    float m_waveLength = 0.2f;
-    glm::vec3 m_perturbationPoint;
-
+    
     std::vector<std::vector<GLfloat>> m_velocities;
     std::vector<std::vector<GLfloat>> m_heights;
     std::vector<std::vector<GLfloat>> m_newHeights;
