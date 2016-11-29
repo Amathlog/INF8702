@@ -8,6 +8,7 @@
 #include "Renderable.h"
 #include "glm\vec3.hpp"
 #include "Cube.h"
+#include "NuanceurProg.h"
 
 class WaterGrid : public Renderable{
 public:
@@ -45,6 +46,13 @@ private:
 
     Cube* m_cube;
     GLuint m_texture;
+
+    GLuint m_fbo;
+    GLuint m_heightMapTexture;
+
+    CNuanceurProg m_heightMapShader;
+    CNuanceurProg m_perturbationShader;
+
 };
 
 #endif

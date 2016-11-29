@@ -6,7 +6,9 @@
 #endif 
 
 WaterGrid::WaterGrid(CNuanceurProg shader, glm::vec3 position, int subdivX, int subdivY, float height, float width) : Renderable(shader, position), 
-                                                                                            m_subdivX(subdivX), m_subdivY(subdivY), m_height(height), m_width(width) {
+                                                                                            m_subdivX(subdivX), m_subdivY(subdivY), m_height(height), m_width(width),
+                                                                                            m_heightMapShader{ "shaders/heightMap.vert", "shaders/heightMap.frag", true },
+                                                                                            m_perturbationShader{ "shaders/addPerturbation.vert", "shaders/addPerturbation.frag", true } {
     generateGrid();
     init();
 }
@@ -30,6 +32,32 @@ void WaterGrid::init() {
         refreshHeightsBuffer();
 
     glBindVertexArray(0);
+
+    glGenFramebuffers(1, &m_fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
+
+
+    std::vector<GLfloat> textureInit((m_subdivX + 1) * (m_subdivY + 1) * 4);
+    for (int i = 0; i < (m_subdivX + 1) * (m_subdivY + 1); i++) {
+        textureInit[i * 4] = 0.5f; // Height 50%
+        textureInit[i * 4 + 1] = 0.0f; // Velocity = 0
+        textureInit[i * 4 + 2] = 0.0f; // Normal x = 0
+        textureInit[i * 4 + 3] = 1.0f; // Normal z = 1
+    }
+        glGenTextures(1, &m_heightMapTexture);
+        glBindTexture(GL_TEXTURE_2D, m_heightMapTexture);
+
+            glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_subdivX+1, m_subdivY+1, GL_RGBA, GL_FLOAT, &textureInit[0]);
+
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+        glBindTexture(GL_TEXTURE_2D, 0);
+
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_heightMapTexture, 0);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    
 }
 
 void WaterGrid::refreshHeightsBuffer() {
@@ -116,10 +144,11 @@ void WaterGrid::generateGrid() {
 
 
 void WaterGrid::draw(Camera& camera) {
+    computeNextStep();
+
     // Handle the MVP matrix
     Renderable::prepareDrawing(camera);
     
-    computeNextStep();
     refreshHeightsBuffer();
     
     // Get a handle for our "incomingRay" uniform
@@ -130,7 +159,11 @@ void WaterGrid::draw(Camera& camera) {
     handle = glGetUniformLocation(m_shader.getProg(), "halfEdgeLength");
     glUniform1f(handle, m_cube->getEdgeLength()/2.0f);
 
+    glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, m_cube->getTexture());
+
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, m_heightMapTexture);
 
     glBindVertexArray(m_vertexArrayID);
 
@@ -145,30 +178,6 @@ void WaterGrid::draw(Camera& camera) {
             0,                          // stride
             (void*)0);                  // array buffer offset
 
-        glEnableVertexAttribArray(1);
-        glBindBuffer(GL_ARRAY_BUFFER, m_vertexNormalBuffer);
-
-        glVertexAttribPointer(
-            1,                  // attribute 1.
-            3,                  // size
-            GL_FLOAT,           // type
-            GL_FALSE,           // normalized?
-            0,                  // stride
-            (void*)0            // array buffer offset
-            );
-
-        glEnableVertexAttribArray(2);
-        glBindBuffer(GL_ARRAY_BUFFER, m_vertexHeightBuffer);
-
-        glVertexAttribPointer(
-            2,                  // attribute 2.
-            1,                  // size
-            GL_FLOAT,           // type
-            GL_FALSE,           // normalized?
-            0,                  // stride
-            (void*)0            // array buffer offset
-            );
-
         glDrawArrays(GL_QUADS, 0, m_vertexBufferData.size());
 
         glDisableVertexAttribArray(2);
@@ -179,23 +188,35 @@ void WaterGrid::draw(Camera& camera) {
 }
 
 void WaterGrid::computeNextStep() {
-    for (int i = 1; i < m_subdivX; i++) {
-        for (int j = 1; j < m_subdivY; j++) {
-            // Heights
-            float f = 0.25f * (m_heights[i + 1][j] + m_heights[i - 1][j] + m_heights[i][j + 1] + m_heights[i][j - 1]);
-            m_velocities[i][j] += (f - m_heights[i][j]) * 2.0f;
-            m_velocities[i][j] *= 0.995;
-            m_newHeights[i][j] = m_heights[i][j] + m_velocities[i][j];
+    m_heightMapShader.activer();
 
-            // Normals
-            glm::vec3 dx{ 0.0f , m_width / m_subdivX , m_newHeights[i + 1][j] - m_newHeights[i][j] };
-            glm::vec3 dy{ m_height / m_subdivY , 0.0f,  m_newHeights[i][j] - m_newHeights[i][j+1] };
-            glm::vec3 aux = glm::normalize(glm::cross(dy, dx));
-            m_newNormals[i][j].x = aux.x;
-            m_newNormals[i][j].y = aux.z;
-        }
-    }
-    m_heights = m_newHeights;
+    glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
+
+    GLuint handle = glGetUniformLocation(m_heightMapShader.getProg(), "halfEdgeLength");
+    glUniform1f(handle, m_cube->getEdgeLength() / 2.0f);
+
+    handle = glGetUniformLocation(m_heightMapShader.getProg(), "dx");
+    glUniform1f(handle, m_width / m_subdivX);
+
+    handle = glGetUniformLocation(m_heightMapShader.getProg(), "dy");
+    glUniform1f(handle, m_height / m_subdivY);
+
+    glBindVertexArray(m_vertexArrayID);
+
+    glEnableVertexAttribArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer);
+
+    glVertexAttribPointer(
+        0,                          // attribute 0. No particular reason for 0, but must match the layout in the shader.
+        3,                          // size
+        GL_FLOAT,                   // type
+        GL_FALSE,                   // normalized?
+        0,                          // stride
+        (void*)0);                  // array buffer offset
+
+    glDrawArrays(GL_QUADS, 0, m_vertexBufferData.size());
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 

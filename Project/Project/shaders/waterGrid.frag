@@ -1,6 +1,7 @@
 #version 400 core
 
-uniform sampler2D Texture;
+uniform sampler2D cubeTexture;
+uniform sampler2D heightMap;
 
 out vec4 color;
 uniform float halfEdgeLength;
@@ -60,5 +61,5 @@ void main(){
     vec3 incomingRay = position - eye;
     vec3 refractedRay = refract(incomingRay, normal, 1.0/1.3330);
     vec3 newPosition = vec3(position.xy, position.z + oh);
-    color = texture(Texture, getTexCoords(newPosition, refractedRay, halfEdgeLength))  * vec4(0.4, 0.9, 1.0, 1.0);
+    color = texture(cubeTexture, getTexCoords(newPosition, refractedRay, halfEdgeLength))  * vec4(0.4, 0.9, 1.0, 1.0);
 }
