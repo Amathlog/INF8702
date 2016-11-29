@@ -1,6 +1,5 @@
 #include "WaterGrid.h"
 #include <iostream>
-#include "Texture.hpp"
 
 #ifndef M_PI
     #define M_PI 3.14159265359
@@ -10,7 +9,6 @@ WaterGrid::WaterGrid(CNuanceurProg shader, glm::vec3 position, int subdivX, int 
                                                                                             m_subdivX(subdivX), m_subdivY(subdivY), m_height(height), m_width(width) {
     generateGrid();
     init();
-    m_texture = Texture::loadBMP("textures/swimmingpool.bmp");
 }
 
 void WaterGrid::setCube(Cube* cube) {
@@ -38,37 +36,26 @@ void WaterGrid::refreshHeightsBuffer() {
     std::vector<GLfloat> heightBufferData(m_vertexBufferData.size() / 3);
     for (int i = 0; i < m_subdivX; i++) {
         for (int j = 0; j < m_subdivY; j++) {
-            heightBufferData[i * m_subdivY * 6 + j * 6] = m_heights[i][j];
-            heightBufferData[i * m_subdivY * 6 + j * 6 + 1] = m_heights[i+1][j];
-            heightBufferData[i * m_subdivY * 6 + j * 6 + 2] = m_heights[i+1][j+1];
-            heightBufferData[i * m_subdivY * 6 + j * 6 + 3] = m_heights[i][j];
-            heightBufferData[i * m_subdivY * 6 + j * 6 + 4] = m_heights[i+1][j+1];
-            heightBufferData[i * m_subdivY * 6 + j * 6 + 5] = m_heights[i][j+1];
+            heightBufferData[i * m_subdivY * 4 + j * 4] = m_heights[i][j];
+            heightBufferData[i * m_subdivY * 4 + j * 4 + 1] = m_heights[i+1][j];
+            heightBufferData[i * m_subdivY * 4 + j * 4 + 2] = m_heights[i+1][j+1];
+            heightBufferData[i * m_subdivY * 4 + j * 4 + 3] = m_heights[i][j+1];
 
-            m_vertexNormalBufferData[i * m_subdivY * 18 + j * 18] = m_newNormals[i][j].x;
-            m_vertexNormalBufferData[i * m_subdivY * 18 + j * 18 + 1] = sqrt(1.0f - glm::dot(m_newNormals[i][j], m_newNormals[i][j]));
-            m_vertexNormalBufferData[i * m_subdivY * 18 + j * 18 + 2] = m_newNormals[i][j].y;
+            m_vertexNormalBufferData[i * m_subdivY * 12 + j * 12] = m_newNormals[i][j].x;
+            m_vertexNormalBufferData[i * m_subdivY * 12 + j * 12 + 1] = sqrt(1.0f - glm::dot(m_newNormals[i][j], m_newNormals[i][j]));
+            m_vertexNormalBufferData[i * m_subdivY * 12 + j * 12 + 2] = m_newNormals[i][j].y;
 
-            m_vertexNormalBufferData[i * m_subdivY * 18 + j * 18 + 3] = m_newNormals[i+1][j].x;
-            m_vertexNormalBufferData[i * m_subdivY * 18 + j * 18 + 4] = sqrt(1.0f - glm::dot(m_newNormals[i+1][j], m_newNormals[i+1][j]));
-            m_vertexNormalBufferData[i * m_subdivY * 18 + j * 18 + 5] = m_newNormals[i+1][j].y;
+            m_vertexNormalBufferData[i * m_subdivY * 12 + j * 12 + 3] = m_newNormals[i+1][j].x;
+            m_vertexNormalBufferData[i * m_subdivY * 12 + j * 12 + 4] = sqrt(1.0f - glm::dot(m_newNormals[i+1][j], m_newNormals[i+1][j]));
+            m_vertexNormalBufferData[i * m_subdivY * 12 + j * 12 + 5] = m_newNormals[i+1][j].y;
 
-            m_vertexNormalBufferData[i * m_subdivY * 18 + j * 18 + 6] = m_newNormals[i+1][j+1].x;
-            m_vertexNormalBufferData[i * m_subdivY * 18 + j * 18 + 7] = sqrt(1.0f - glm::dot(m_newNormals[i+1][j+1], m_newNormals[i + 1][j + 1]));
-            m_vertexNormalBufferData[i * m_subdivY * 18 + j * 18 + 8] = m_newNormals[i + 1][j + 1].y;
+            m_vertexNormalBufferData[i * m_subdivY * 12 + j * 12 + 6] = m_newNormals[i+1][j+1].x;
+            m_vertexNormalBufferData[i * m_subdivY * 12 + j * 12 + 7] = sqrt(1.0f - glm::dot(m_newNormals[i+1][j+1], m_newNormals[i + 1][j + 1]));
+            m_vertexNormalBufferData[i * m_subdivY * 12 + j * 12 + 8] = m_newNormals[i + 1][j + 1].y;
 
-
-            m_vertexNormalBufferData[i * m_subdivY * 18 + j * 18 + 9] = m_newNormals[i][j].x;
-            m_vertexNormalBufferData[i * m_subdivY * 18 + j * 18 + 10] = sqrt(1.0f - glm::dot(m_newNormals[i][j], m_newNormals[i][j]));
-            m_vertexNormalBufferData[i * m_subdivY * 18 + j * 18 + 11] = m_newNormals[i][j].y;
-
-            m_vertexNormalBufferData[i * m_subdivY * 18 + j * 18 + 12] = m_newNormals[i + 1][j + 1].x;
-            m_vertexNormalBufferData[i * m_subdivY * 18 + j * 18 + 13] = sqrt(1.0f - glm::dot(m_newNormals[i + 1][j + 1], m_newNormals[i + 1][j + 1]));
-            m_vertexNormalBufferData[i * m_subdivY * 18 + j * 18 + 14] = m_newNormals[i + 1][j + 1].y;
-
-            m_vertexNormalBufferData[i * m_subdivY * 18 + j * 18 + 15] = m_newNormals[i][j + 1].x;
-            m_vertexNormalBufferData[i * m_subdivY * 18 + j * 18 + 16] = sqrt(1.0f - glm::dot(m_newNormals[i][j + 1], m_newNormals[i][j + 1]));
-            m_vertexNormalBufferData[i * m_subdivY * 18 + j * 18 + 17] = m_newNormals[i][j + 1].y;
+            m_vertexNormalBufferData[i * m_subdivY * 12 + j * 12 + 9] = m_newNormals[i][j + 1].x;
+            m_vertexNormalBufferData[i * m_subdivY * 12 + j * 12 + 10] = sqrt(1.0f - glm::dot(m_newNormals[i][j + 1], m_newNormals[i][j + 1]));
+            m_vertexNormalBufferData[i * m_subdivY * 12 + j * 12 + 11] = m_newNormals[i][j + 1].y;
         }
     }
 
@@ -82,8 +69,8 @@ void WaterGrid::refreshHeightsBuffer() {
 }
 
 void WaterGrid::generateGrid() {
-    m_vertexBufferData.resize(m_subdivX * m_subdivY * 6 * 3);
-    m_vertexNormalBufferData.resize(m_subdivX * m_subdivY * 3 * 6);
+    m_vertexBufferData.resize(m_subdivX * m_subdivY * 4 * 3);
+    m_vertexNormalBufferData.resize(m_subdivX * m_subdivY * 3 * 4);
     float xOffset = m_width / m_subdivX;
     float yOffset = m_height / m_subdivY;
     float xStart = m_position.x - m_width / 2.0f;
@@ -91,30 +78,21 @@ void WaterGrid::generateGrid() {
 
     for (int i = 0; i < m_subdivX; i++) {
         for (int j = 0; j < m_subdivY; j++) {
-            m_vertexBufferData[i*m_subdivY * 18 + 18 * j] = xStart + i*xOffset;
-            m_vertexBufferData[i*m_subdivY * 18 + 18 * j + 1] = yStart + j*yOffset;
-            m_vertexBufferData[i*m_subdivY * 18 + 18 * j + 2] = m_position.z;
+            m_vertexBufferData[i*m_subdivY * 12 + 12 * j] = xStart + i*xOffset;
+            m_vertexBufferData[i*m_subdivY * 12 + 12 * j + 1] = yStart + j*yOffset;
+            m_vertexBufferData[i*m_subdivY * 12 + 12 * j + 2] = m_position.z;
 
-            m_vertexBufferData[i*m_subdivY * 18 + 18 * j + 3] = xStart + (i+1)*xOffset;
-            m_vertexBufferData[i*m_subdivY * 18 + 18 * j + 4] = yStart + j*yOffset;
-            m_vertexBufferData[i*m_subdivY * 18 + 18 * j + 5] = m_position.z;
+            m_vertexBufferData[i*m_subdivY * 12 + 12 * j + 3] = xStart + (i+1)*xOffset;
+            m_vertexBufferData[i*m_subdivY * 12 + 12 * j + 4] = yStart + j*yOffset;
+            m_vertexBufferData[i*m_subdivY * 12 + 12 * j + 5] = m_position.z;
 
-            m_vertexBufferData[i*m_subdivY * 18 + 18 * j + 6] = xStart + (i+1)*xOffset;
-            m_vertexBufferData[i*m_subdivY * 18 + 18 * j + 7] = yStart + (j+1)*yOffset;
-            m_vertexBufferData[i*m_subdivY * 18 + 18 * j + 8] = m_position.z;
+            m_vertexBufferData[i*m_subdivY * 12 + 12 * j + 6] = xStart + (i+1)*xOffset;
+            m_vertexBufferData[i*m_subdivY * 12 + 12 * j + 7] = yStart + (j+1)*yOffset;
+            m_vertexBufferData[i*m_subdivY * 12 + 12 * j + 8] = m_position.z;
 
-
-            m_vertexBufferData[i*m_subdivY * 18 + 18 * j + 9] = xStart + i*xOffset;
-            m_vertexBufferData[i*m_subdivY * 18 + 18 * j + 10] = yStart + j*yOffset;
-            m_vertexBufferData[i*m_subdivY * 18 + 18 * j + 11] = m_position.z;
-
-            m_vertexBufferData[i*m_subdivY * 18 + 18 * j + 12] = xStart + (i+1)*xOffset;
-            m_vertexBufferData[i*m_subdivY * 18 + 18 * j + 13] = yStart + (j+1)*yOffset;
-            m_vertexBufferData[i*m_subdivY * 18 + 18 * j + 14] = m_position.z;
-
-            m_vertexBufferData[i*m_subdivY * 18 + 18 * j + 15] = xStart + i*xOffset;
-            m_vertexBufferData[i*m_subdivY * 18 + 18 * j + 16] = yStart + (j+1)*yOffset;
-            m_vertexBufferData[i*m_subdivY * 18 + 18 * j + 17] = m_position.z;            
+            m_vertexBufferData[i*m_subdivY * 12 + 12 * j + 9] = xStart + i*xOffset;
+            m_vertexBufferData[i*m_subdivY * 12 + 12 * j + 10] = yStart + (j+1)*yOffset;
+            m_vertexBufferData[i*m_subdivY * 12 + 12 * j + 11] = m_position.z;
         }
     }
 
@@ -152,7 +130,7 @@ void WaterGrid::draw(Camera& camera) {
     handle = glGetUniformLocation(m_shader.getProg(), "halfEdgeLength");
     glUniform1f(handle, m_cube->getEdgeLength()/2.0f);
 
-    glBindTexture(GL_TEXTURE_2D, m_texture);
+    glBindTexture(GL_TEXTURE_2D, m_cube->getTexture());
 
     glBindVertexArray(m_vertexArrayID);
 
@@ -191,7 +169,7 @@ void WaterGrid::draw(Camera& camera) {
             (void*)0            // array buffer offset
             );
 
-        glDrawArrays(GL_TRIANGLES, 0, m_vertexBufferData.size());
+        glDrawArrays(GL_QUADS, 0, m_vertexBufferData.size());
 
         glDisableVertexAttribArray(2);
         glDisableVertexAttribArray(1);

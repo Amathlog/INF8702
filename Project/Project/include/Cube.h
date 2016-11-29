@@ -19,6 +19,7 @@ public:
     float getEdgeLength();
 
     void setWaterGrid(WaterGrid* watergrid);
+    GLuint getTexture();
 
 private:
     void init();
