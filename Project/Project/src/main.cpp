@@ -109,7 +109,7 @@ int main(void)
     control.setWindowAndScene(window, &scene);
     control.setGrid(&waterGrid);
 
-    glViewport(0, 0, width, height);
+    //glViewport(0, 0, width, height);
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window) && glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS)

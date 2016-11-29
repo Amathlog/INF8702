@@ -34,8 +34,15 @@ vec2 getTexCoords(vec3 position, vec3 ray, float halfEdgeLength){
     vec3 intersection = getIntersection(position, ray, vec3(0,0,1), -halfEdgeLength);
     if(abs(intersection.x) < halfEdgeLength && abs(intersection.y) < halfEdgeLength){
         return vec2((intersection.x + halfEdgeLength)/(2.0 * halfEdgeLength), (intersection.y + halfEdgeLength)/(2.0 * halfEdgeLength));
-    } else if (abs(intersection.x) > halfEdgeLength && abs(intersection.y) > halfEdgeLength){
-        if (abs(intersection.x) < abs(intersection.y)){
+    } else if (abs(intersection.x) > halfEdgeLength && abs(intersection.y) > halfEdgeLength){ 
+        vec3 halfpoint = vec3(0,0,0.5);
+        halfpoint.x = sign(intersection.x)*halfEdgeLength;
+        halfpoint.y = sign(intersection.y)*halfEdgeLength;
+        vec3 dir = halfpoint - eye;
+        vec3 secondIntersection = getIntersection(halfpoint, dir, vec3(0,0,1), -halfEdgeLength);
+        float a = (eye.y-halfpoint.y) / (eye.x-halfpoint.x );
+        float b = halfpoint.y-a*halfpoint.x;
+        if (abs(a*intersection.x+b) < abs(intersection.y)){
             intersection.x = 0;
         } else {
             intersection.y = 0;
