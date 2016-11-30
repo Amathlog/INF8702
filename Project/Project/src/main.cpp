@@ -99,7 +99,7 @@ int main(void)
     scene.addRenderable(&line2);*/
 
     // Create watergrid
-    WaterGrid waterGrid(waterGridShader, glm::vec3(0.0f, 0.0f, 0.9f), 50, 50, cubeEdgeLength, cubeEdgeLength);
+    WaterGrid waterGrid(waterGridShader, glm::vec3(0.0f, 0.0f, 0.9f), 75, 75, cubeEdgeLength, cubeEdgeLength);
     waterGrid.setCube(&cube1);
     cube1.setWaterGrid(&waterGrid);
     scene.addRenderable(&waterGrid);

@@ -39,18 +39,19 @@ void WaterGrid::init() {
 
     std::vector<GLfloat> textureInit((m_subdivX + 1) * (m_subdivY + 1) * 4);
     for (int i = 0; i < (m_subdivX + 1) * (m_subdivY + 1); i++) {
-        textureInit[i * 4] = 0.5f; // Height 50%
+        textureInit[i * 4] = 0.0f; // Height = 0
         textureInit[i * 4 + 1] = 0.0f; // Velocity = 0
         textureInit[i * 4 + 2] = 0.0f; // Normal x = 0
         textureInit[i * 4 + 3] = 1.0f; // Normal z = 1
     }
+    textureInit[(m_subdivX + 1) * (m_subdivY + 1)] = -0.2f;
         glGenTextures(1, &m_heightMapTexture);
         glBindTexture(GL_TEXTURE_2D, m_heightMapTexture);
 
-            glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_subdivX+1, m_subdivY+1, GL_RGBA, GL_FLOAT, &textureInit[0]);
-
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, m_subdivX + 1, m_subdivY + 1, 0, GL_RGBA, GL_FLOAT, &textureInit[0]);           
 
         glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -58,6 +59,25 @@ void WaterGrid::init() {
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     
+}
+
+void WaterGrid::refreshTexture() {
+    std::vector<GLfloat> textureInit((m_subdivX + 1) * (m_subdivY + 1) * 4);
+    for (int i = 0; i < (m_subdivX + 1) * (m_subdivY + 1); i++) {
+        textureInit[i * 4] = m_heights[i / (m_subdivY+1)][i % (m_subdivY + 1)];
+        textureInit[i * 4 + 1] = m_velocities[i / (m_subdivY + 1)][i % (m_subdivY + 1)]; 
+        textureInit[i * 4 + 2] = m_newNormals[i / (m_subdivY + 1)][i % (m_subdivY + 1)].x; 
+        textureInit[i * 4 + 3] = m_newNormals[i / (m_subdivY + 1)][i % (m_subdivY + 1)].y;
+    }
+
+    glBindTexture(GL_TEXTURE_2D, m_heightMapTexture);
+
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, m_subdivX + 1, m_subdivY + 1, 0, GL_RGBA, GL_FLOAT, &textureInit[0]);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void WaterGrid::refreshHeightsBuffer() {
@@ -144,12 +164,13 @@ void WaterGrid::generateGrid() {
 
 
 void WaterGrid::draw(Camera& camera) {
-    computeNextStep();
+    computeNextStepCPU();
+    refreshTexture();
 
     // Handle the MVP matrix
     Renderable::prepareDrawing(camera);
     
-    refreshHeightsBuffer();
+    //refreshHeightsBuffer();
     
     // Get a handle for our "incomingRay" uniform
     GLuint handle = glGetUniformLocation(m_shader.getProg(), "eye");
@@ -159,10 +180,15 @@ void WaterGrid::draw(Camera& camera) {
     handle = glGetUniformLocation(m_shader.getProg(), "halfEdgeLength");
     glUniform1f(handle, m_cube->getEdgeLength()/2.0f);
 
-    glActiveTexture(GL_TEXTURE0);
+    GLuint handleCubeTexture = glGetUniformLocation(m_shader.getProg(), "cubeTexture");
+    GLuint handleHeightMapTexture = glGetUniformLocation(m_shader.getProg(), "heightMap");
+    glUniform1i(handleCubeTexture, 0);
+    glUniform1i(handleHeightMapTexture, 2);
+
+    glActiveTexture(GL_TEXTURE0 + 0);
     glBindTexture(GL_TEXTURE_2D, m_cube->getTexture());
 
-    glActiveTexture(GL_TEXTURE1);
+    glActiveTexture(GL_TEXTURE0 + 2);
     glBindTexture(GL_TEXTURE_2D, m_heightMapTexture);
 
     glBindVertexArray(m_vertexArrayID);
@@ -180,8 +206,6 @@ void WaterGrid::draw(Camera& camera) {
 
         glDrawArrays(GL_QUADS, 0, m_vertexBufferData.size());
 
-        glDisableVertexAttribArray(2);
-        glDisableVertexAttribArray(1);
         glDisableVertexAttribArray(0);
 
     glBindVertexArray(0);
@@ -196,10 +220,10 @@ void WaterGrid::computeNextStep() {
     glUniform1f(handle, m_cube->getEdgeLength() / 2.0f);
 
     handle = glGetUniformLocation(m_heightMapShader.getProg(), "dx");
-    glUniform1f(handle, m_width / m_subdivX);
+    glUniform1f(handle, float(m_width) / m_subdivX);
 
     handle = glGetUniformLocation(m_heightMapShader.getProg(), "dy");
-    glUniform1f(handle, m_height / m_subdivY);
+    glUniform1f(handle, float(m_height) / m_subdivY);
 
     glBindVertexArray(m_vertexArrayID);
 
@@ -219,6 +243,25 @@ void WaterGrid::computeNextStep() {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
+void WaterGrid::computeNextStepCPU() {
+    for (int i = 1; i < m_subdivX; i++) {
+        for (int j = 1; j < m_subdivY; j++) {
+            // Heights
+            float f = 0.25f * (m_heights[i + 1][j] + m_heights[i - 1][j] + m_heights[i][j + 1] + m_heights[i][j - 1]);
+            m_velocities[i][j] += (f - m_heights[i][j]) * 2.0f;
+            m_velocities[i][j] *= 0.995;
+            m_newHeights[i][j] = m_heights[i][j] + m_velocities[i][j];
+
+            // Normals
+            glm::vec3 dx{ 0.0f , m_width / m_subdivX , m_newHeights[i + 1][j] - m_newHeights[i][j] };
+            glm::vec3 dy{ m_height / m_subdivY , 0.0f,  m_newHeights[i][j] - m_newHeights[i][j + 1] };
+            glm::vec3 aux = glm::normalize(glm::cross(dy, dx));
+            m_newNormals[i][j].x = aux.x;
+            m_newNormals[i][j].y = aux.z;
+        }
+    }
+    m_heights = m_newHeights;
+}
 
 void WaterGrid::addPerturbation() {
     m_heights[m_subdivX / 2][m_subdivY / 2] = -0.2f;

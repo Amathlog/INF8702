@@ -22,7 +22,10 @@ private:
     void generateGrid();
     void init();
     void computeNextStep();
+    void computeNextStepCPU();
     void refreshHeightsBuffer();
+
+    void refreshTexture();
 
     std::vector<GLfloat> m_vertexBufferData;
 

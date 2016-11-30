@@ -2,6 +2,8 @@
 
 layout(location = 0) in vec3 vp;
 
+uniform sampler2D heightMap;
+
 uniform float halfEdgeLength;
 uniform float dx;
 uniform float dy;

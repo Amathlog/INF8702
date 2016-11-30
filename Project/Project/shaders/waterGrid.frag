@@ -9,6 +9,7 @@ in vec3 position;
 in vec3 normal;
 uniform vec3 eye;
 in float oh;
+in vec4 fragColor;
 
 vec3 getIntersection(vec3 position, vec3 ray, vec3 planNormal, float halfEdgeLength){
     vec3 diff = planNormal * halfEdgeLength - position;
