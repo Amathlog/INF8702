@@ -25,6 +25,9 @@ private:
     void computeNextStepCPU();
     void refreshHeightsBuffer();
 
+    void addPerturbationCPU();
+    void addPerturbationGPU();
+
     void refreshTexture();
 
     std::vector<GLfloat> m_vertexBufferData;
@@ -51,7 +54,8 @@ private:
     GLuint m_texture;
 
     GLuint m_fbo;
-    GLuint m_heightMapTexture;
+    GLuint m_heightMapTextureRead;
+    GLuint m_heightMapTextureWrite;
 
     CNuanceurProg m_heightMapShader;
     CNuanceurProg m_perturbationShader;

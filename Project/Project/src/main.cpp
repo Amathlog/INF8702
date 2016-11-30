@@ -21,8 +21,12 @@
 #include "../include/Control.h"
 #include "Watergrid.h"
 
-const unsigned int width = 1920;
-const unsigned int height = 1080;
+#include <ctime>
+#include <Windows.h>
+
+const unsigned int width = 1280;
+const unsigned int height = 720;
+const unsigned int maximum_fps = 20;
 
 int main(void)
 {
@@ -33,7 +37,7 @@ int main(void)
         return -1;
 
     /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(1920, 1080, "Hello World", NULL, NULL);
+    window = glfwCreateWindow(width, height, "Hello World", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
@@ -61,6 +65,8 @@ int main(void)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+    glViewport(0, 0, width, height);
 
     // Catch ESC key
     glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
@@ -99,7 +105,7 @@ int main(void)
     scene.addRenderable(&line2);*/
 
     // Create watergrid
-    WaterGrid waterGrid(waterGridShader, glm::vec3(0.0f, 0.0f, 0.9f), 75, 75, cubeEdgeLength, cubeEdgeLength);
+    WaterGrid waterGrid(waterGridShader, glm::vec3(0.0f, 0.0f, 0.9f), 50, 50, cubeEdgeLength, cubeEdgeLength);
     waterGrid.setCube(&cube1);
     cube1.setWaterGrid(&waterGrid);
     scene.addRenderable(&waterGrid);
@@ -114,6 +120,8 @@ int main(void)
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window) && glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS)
     {
+        clock_t begin = clock();
+
         /* Render here */
         scene.render();
 
@@ -125,6 +133,12 @@ int main(void)
 
         /* Poll for and process events */
         glfwPollEvents();
+
+        clock_t end = clock();
+        double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+        if (elapsed_secs < 1.0 / maximum_fps) {
+            Sleep(long((1.0 / maximum_fps - elapsed_secs) * 1000));
+        }
     }
 
     glfwTerminate();

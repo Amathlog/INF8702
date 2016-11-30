@@ -63,4 +63,5 @@ void main(){
     vec3 refractedRay = refract(incomingRay, normal, 1.0/1.3330);
     vec3 newPosition = vec3(position.xy, position.z + oh);
     color = texture(cubeTexture, getTexCoords(newPosition, refractedRay, halfEdgeLength))  * vec4(0.4, 0.9, 1.0, 1.0);
+    //color = fragColor;
 }

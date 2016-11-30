@@ -12,5 +12,6 @@ out vec2 texCoords;
 
 void main(){
     texCoords = (vec2(vp) + halfEdgeLength * vec2(1.0)) / (2.0*halfEdgeLength);
+    gl_Position = vec4(vp, 1.0);
 }
 
