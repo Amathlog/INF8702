@@ -8,6 +8,6 @@ in vec2 texCoords;
 in float perturbation;
 
 void main(){
-    heightMapColor = texture2D(heightMap, texCoords);
+    //heightMapColor = texture2D(heightMap, texCoords);
     heightMapColor.r = perturbation;
 }

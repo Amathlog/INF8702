@@ -25,9 +25,21 @@ void main(){
 
     // Normals
     vec3 vecDx = vec3(0.0, dx, texture2D(heightMap, texCoords + vec2(dx,0.0)).r - texture2D(heightMap, texCoords).r);
-    vec3 vecDy = vec3(dy, 0.0, texture2D(heightMap, texCoords) - texture2D(heightMap, texCoords + vec2(0.0,dy)).r);
+    vec3 vecDy = vec3(dy, 0.0, texture2D(heightMap, texCoords).r - texture2D(heightMap, texCoords + vec2(0.0,dy)).r);
     vec3 aux = normalize(cross(vecDy, vecDx));
-    heightMapColor.ba = aux.xz;
+    //heightMapColor.ba = aux.xz;
+
+    if(abs(aux.x)> 0.5){
+      heightMapColor.b = aux.x;  
+    }else{
+      heightMapColor.b = 0;
+    }
+
+    if(abs(aux.z)> 0.5){
+      heightMapColor.a = aux.z;  
+    }else{
+      heightMapColor.a = 0;
+    }
 
     color = heightMapColor;
 }
