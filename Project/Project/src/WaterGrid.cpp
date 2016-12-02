@@ -5,6 +5,8 @@
     #define M_PI 3.14159265359
 #endif 
 
+#define GPU 0
+
 WaterGrid::WaterGrid(CNuanceurProg shader, glm::vec3 position, int subdivX, int subdivY, float height, float width) : Renderable(shader, position), 
                                                                                             m_subdivX(subdivX), m_subdivY(subdivY), m_height(height), m_width(width),
                                                                                             m_heightMapShader{ "shaders/heightMap.vert", "shaders/heightMap.frag", true },
@@ -180,12 +182,13 @@ void WaterGrid::generateGrid() {
 void WaterGrid::draw(Camera& camera) {
 
     //Uncomment to test on shaders
-    //computeNextStep();
-
+#if GPU
+    computeNextStep();
+#else
     //Comment those 2 to disable CPU computation
     computeNextStepCPU();
     refreshTexture();
-
+#endif
     // Handle the MVP matrix
     Renderable::prepareDrawing(camera);
     
@@ -312,8 +315,11 @@ void WaterGrid::computeNextStepCPU() {
 }
 
 void WaterGrid::addPerturbation() {
+#if GPU
+    addPerturbationGPU();
+#else
     addPerturbationCPU();
-    //addPerturbationGPU();
+#endif
 }
 
 void WaterGrid::addPerturbationCPU() {
