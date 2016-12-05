@@ -177,3 +177,7 @@ float Cube::getEdgeLength() {
 void Cube::setWaterGrid(WaterGrid* grid) {
     m_watergrid = grid;
 }
+
+GLuint Cube::getTexture() {
+    return m_texture;
+}

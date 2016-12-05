@@ -21,8 +21,15 @@
 #include "../include/Control.h"
 #include "Watergrid.h"
 
-const unsigned int width = 1920;
-const unsigned int height = 1080;
+#include <ctime>
+#include <Windows.h>
+
+const unsigned int width = 1280;
+const unsigned int height = 720;
+const unsigned int maximum_fps = 60;
+const unsigned int granularity = 256;
+const float cubeLength = 1.0f;
+glm::vec3 cameraPosition(1.0f, 1.0f, 1.0f);
 
 int main(void)
 {
@@ -33,7 +40,7 @@ int main(void)
         return -1;
 
     /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(1920, 1080, "Hello World", NULL, NULL);
+    window = glfwCreateWindow(width, height, "Hello World", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
@@ -62,6 +69,13 @@ int main(void)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
+    glViewport(0, 0, width, height);
+
+    GLfloat m_depthValues[2];
+
+    glGetFloatv(GL_DEPTH_RANGE, m_depthValues);
+    std::cout << "Depth :" << m_depthValues[0] << ", " << m_depthValues[1] << std::endl;
+
     // Catch ESC key
     glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
 
@@ -78,28 +92,17 @@ int main(void)
     Camera camera;
 
     // Set all its parameters
-    camera.setPosition(glm::vec3(4.0f, 3.0f, 3.0f));
+    camera.setPosition(cameraPosition);
 
     // Add the camera to the scene
     scene.setCamera(camera);
 
-    // Create our triangle
-    //Triangle triangle(triangleShader);
-
-    // Add it to the scene
-    //scene.addRenderable(&triangle);
-
     // Create cube  
-    float cubeEdgeLength = 3.0f;
-    Cube cube1(cubeShader, glm::vec3(0.0f, 0.0f, 0.0f), cubeEdgeLength);
+    Cube cube1(cubeShader, glm::vec3(0.0f, 0.0f, 0.0f), cubeLength);
     scene.addRenderable(&cube1);
-    /*Line line1(lineShader, glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f), 1);
-    scene.addRenderable(&line1);
-    Line line2(lineShader, glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f), 1);
-    scene.addRenderable(&line2);*/
 
     // Create watergrid
-    WaterGrid waterGrid(waterGridShader, glm::vec3(0.0f, 0.0f, 0.9f), 50, 50, cubeEdgeLength, cubeEdgeLength);
+    WaterGrid waterGrid(waterGridShader, glm::vec3(0.0f, 0.0f, 0.4f), granularity, granularity, cubeLength, cubeLength);
     waterGrid.setCube(&cube1);
     cube1.setWaterGrid(&waterGrid);
     scene.addRenderable(&waterGrid);
@@ -109,22 +112,29 @@ int main(void)
     control.setWindowAndScene(window, &scene);
     control.setGrid(&waterGrid);
 
-    //glViewport(0, 0, width, height);
-
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window) && glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS)
     {
-        /* Render here */
+        clock_t begin = clock();
+
+        // Render here
         scene.render();
 
-        /* Swap front and back buffers */
+        // Swap front and back buffers
         glfwSwapBuffers(window);
 
         // Camera handle (mouse + key arrows)
         control.processEvents();
 
-        /* Poll for and process events */
+        // Poll for and process events
         glfwPollEvents();
+
+        // FPS block
+        clock_t end = clock();
+        double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+        if (elapsed_secs < 1.0 / maximum_fps) {
+            Sleep(long((1.0 / maximum_fps - elapsed_secs) * 1000));
+        }
     }
 
     glfwTerminate();

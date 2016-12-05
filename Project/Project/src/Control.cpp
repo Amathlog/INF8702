@@ -19,6 +19,15 @@ void Control::rotate() {
         throw "Window has not been set in control before using it";
 
     if (glfwGetMouseButton(m_window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+        // If we are not clicking outside the cube, do nothing
+        float zBuffer = getMousePositionInWorldCoordinates().z;
+        std::cout << "z = " << zBuffer << std::endl;
+        if (abs(zBuffer) <= 10.0f && !m_draging)
+            return;
+
+        m_draging = true;
+        m_perturbated = true;
+
         double xPos, yPos;
         glfwGetCursorPos(m_window, &xPos, &yPos);
         if (m_savePositionMouse == glm::vec2(-1, -1)) {
@@ -39,6 +48,8 @@ void Control::rotate() {
     }
     else if (glfwGetMouseButton(m_window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE) {
         m_savePositionMouse = glm::vec2(-1, -1);
+        m_draging = false;
+        m_perturbated = false;
     }
 }
 
@@ -63,8 +74,21 @@ void Control::setWindowAndScene(GLFWwindow* window, Scene* scene) {
 }
 
 void Control::addWaterPerturbation() {
-    if (glfwGetKey(m_window, GLFW_KEY_P) == GLFW_PRESS) {
-        m_grid->addPerturbation();
+    // Trigger the event only once on click or press
+    if (glfwGetKey(m_window, GLFW_KEY_P) == GLFW_PRESS && !m_perturbated) {
+        m_perturbated = true;
+        m_grid->addPerturbation(m_grid->getPosition());
+    }
+    else if(glfwGetKey(m_window, GLFW_KEY_P) == GLFW_RELEASE){
+        m_perturbated = false;
+    }
+
+    if (glfwGetMouseButton(m_window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && !m_perturbated) {
+        m_perturbated = true;
+        m_grid->addPerturbation(getMousePositionInWorldCoordinates());
+    }
+    else if (glfwGetMouseButton(m_window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE) {
+        m_perturbated = false;
     }
 }
 
@@ -76,4 +100,27 @@ void Control::processEvents() {
     rotate();
     keyRotate();
     addWaterPerturbation();
+}
+
+glm::vec3 Control::getMousePositionInWorldCoordinates() {
+    Camera camera = m_scene->getCamera();
+
+    int width, height;
+    glfwGetWindowSize(m_window, &width, &height);
+
+    double xPos, yPos;
+    glfwGetCursorPos(m_window, &xPos, &yPos);
+
+    GLfloat depth = 0.0f;
+    glReadPixels(floor(xPos), floor(height - yPos), 1, 1,GL_DEPTH_COMPONENT,GL_FLOAT,&depth);
+
+    glm::mat4 invVP = glm::inverse(camera.getProjectionMatrix() * camera.getViewMatrix());
+    // x and y are different because y is upside-down
+    glm::vec4 cursor{ 2.0f * float(xPos) / width - 1.0f, 1.0f - 2.0f * float(yPos) / height , 2.0f * depth - 1.0f, 1.0f };
+
+    glm::vec4 pos = invVP * cursor;
+
+    pos /= pos.w;
+
+    return glm::vec3(pos);
 }
