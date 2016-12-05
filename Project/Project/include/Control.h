@@ -39,6 +39,9 @@ private:
     glm::vec2 m_currPositionMouse;
 
     const float m_cameraSensibility = 0.5f;
+
+    bool m_perturbated = false;
+    bool m_draging = false;
 };
 
 #endif

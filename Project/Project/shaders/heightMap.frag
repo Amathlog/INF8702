@@ -1,6 +1,6 @@
 #version 400 core
 
-layout(location = 0) out vec4 color;
+layout(location = 0) out vec4 heightMapColor;
 
 uniform sampler2D heightMap;
 uniform float halfEdgeLength;
@@ -11,8 +11,6 @@ uniform float c;
 
 in vec2 texCoords;
 in vec3 pos;
-
-vec4 heightMapColor;
 
 // Vecteurs delta
 vec2 deltaXp = vec2(dx, 0.0);
@@ -32,8 +30,6 @@ void main(){
     if(texCoords.y <= dy)
         deltaYm = deltaYp;
 
-    float dt = 1.0;
-    float c = 0.5;
     heightMapColor = texture2D(heightMap, texCoords);
     float f = (texture2D(heightMap, texCoords + deltaXp).r +
                       texture2D(heightMap, texCoords + deltaXm).r +
@@ -47,8 +43,8 @@ void main(){
     heightMapColor.r += heightMapColor.g * dt;
 
     // Normals
-    vec3 vecDx = vec3(0.0, dx, texture2D(heightMap, texCoords + vec2(dx,0.0)).r - texture2D(heightMap, texCoords).r);
-    vec3 vecDy = vec3(dy, 0.0, texture2D(heightMap, texCoords).r - texture2D(heightMap, texCoords + vec2(0.0,dy)).r);
+    vec3 vecDx = vec3(0.0, dx, texture2D(heightMap, texCoords + deltaXp).r - texture2D(heightMap, texCoords).r);
+    vec3 vecDy = vec3(dy, 0.0, texture2D(heightMap, texCoords).r - texture2D(heightMap, texCoords + deltaYp).r);
     vec3 aux = normalize(cross(vecDy, vecDx));
 
     if(abs(aux.x)> 0.5){
@@ -62,7 +58,4 @@ void main(){
     } else {
       heightMapColor.a = 0;
     } 
-
-    float tmp = f;
-    color = heightMapColor;
 }

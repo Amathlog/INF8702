@@ -22,7 +22,7 @@ private:
     void generateGrid();
     void init();
     void computeNextStep();
-    void addPerturbationGPU();
+    void addPerturbationGPU(glm::vec3 position);
     void drawIntoTexture();
 
     std::vector<GLfloat> m_vertexBufferData;
@@ -53,7 +53,7 @@ private:
 
     // Constants for simulation
     float m_perturbationRadius = 0.01f;     // Radius of the perturbation
-    float m_perturbationStrength = 0.3f;    // Strength of the perturbation
+    float m_perturbationStrength = 0.2f;    // Strength of the perturbation
     float m_deltaT = 1.0f;                  // Time step
     float m_celerity = 0.5f;                // Speed of the wave
 

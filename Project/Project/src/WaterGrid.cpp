@@ -32,10 +32,10 @@ void WaterGrid::init() {
     glBindVertexArray(0);
 
     // Quad for texture
-    std::vector<GLfloat> quadData = { -1.0, -1.0, 0.0,
-                                     1.0, -1.0, 0.0,
-                                     1.0, 1.0, 0.0,
-                                     -1.0, 1.0, 0.0 };
+    std::vector<GLfloat> quadData = { -1.0, -1.0, m_position.z,
+                                     1.0, -1.0, m_position.z,
+                                     1.0, 1.0, m_position.z,
+                                     -1.0, 1.0, m_position.z };
 
     glGenVertexArrays(1, &m_vertexArrayTextureID);
     glBindVertexArray(m_vertexArrayTextureID);
@@ -128,7 +128,10 @@ void WaterGrid::draw(Camera& camera) {
 
     // Handle the MVP matrix
     Renderable::prepareDrawing(camera);
-    
+
+    // Print the center of the grid in window space
+    glm::vec4 p = camera.getProjectionMatrix() * camera.getViewMatrix() * glm::vec4(m_position, 1.0f);
+    //std::cout << "After projection : (" << p.x << ", " << p.y << ", " << p.z << ", " << p.w << ")" << std::endl;
  
     // Get a handle for our "incomingRay" uniform
     GLuint handle = glGetUniformLocation(m_shader.getProg(), "eye");
@@ -193,15 +196,17 @@ void WaterGrid::computeNextStep() {
 
 
 void WaterGrid::addPerturbation(glm::vec3 position) {
-    addPerturbationGPU();
+    addPerturbationGPU(position);
 }
 
-void WaterGrid::addPerturbationGPU() {
+void WaterGrid::addPerturbationGPU(glm::vec3 position) {
     m_perturbationShader.activer();
 
     // Push specific uniform variables to the shader
     GLuint handle = glGetUniformLocation(m_perturbationShader.getProg(), "perturbationPoint");
-    glUniform3fv(handle, 1, &m_position[0]);
+    position.x /= (m_cube->getEdgeLength() * 0.5f);
+    position.y /= (m_cube->getEdgeLength() * 0.5f);
+    glUniform3fv(handle, 1, &position[0]);
 
     handle = glGetUniformLocation(m_perturbationShader.getProg(), "perturbationStrength");
     glUniform1f(handle, m_perturbationStrength);

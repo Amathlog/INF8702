@@ -27,6 +27,9 @@
 const unsigned int width = 1280;
 const unsigned int height = 720;
 const unsigned int maximum_fps = 60;
+const unsigned int granularity = 256;
+const float cubeLength = 1.0f;
+glm::vec3 cameraPosition(1.0f, 1.0f, 1.0f);
 
 int main(void)
 {
@@ -68,6 +71,11 @@ int main(void)
 
     glViewport(0, 0, width, height);
 
+    GLfloat m_depthValues[2];
+
+    glGetFloatv(GL_DEPTH_RANGE, m_depthValues);
+    std::cout << "Depth :" << m_depthValues[0] << ", " << m_depthValues[1] << std::endl;
+
     // Catch ESC key
     glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
 
@@ -84,18 +92,17 @@ int main(void)
     Camera camera;
 
     // Set all its parameters
-    camera.setPosition(glm::vec3(1.0f, 1.0f, 1.0f));
+    camera.setPosition(cameraPosition);
 
     // Add the camera to the scene
     scene.setCamera(camera);
 
     // Create cube  
-    float cubeEdgeLength = 1.0f;
-    Cube cube1(cubeShader, glm::vec3(0.0f, 0.0f, 0.0f), cubeEdgeLength);
+    Cube cube1(cubeShader, glm::vec3(0.0f, 0.0f, 0.0f), cubeLength);
     scene.addRenderable(&cube1);
 
     // Create watergrid
-    WaterGrid waterGrid(waterGridShader, glm::vec3(0.0f, 0.0f, 0.4f), 256, 256, cubeEdgeLength, cubeEdgeLength);
+    WaterGrid waterGrid(waterGridShader, glm::vec3(0.0f, 0.0f, 0.4f), granularity, granularity, cubeLength, cubeLength);
     waterGrid.setCube(&cube1);
     cube1.setWaterGrid(&waterGrid);
     scene.addRenderable(&waterGrid);
@@ -110,18 +117,19 @@ int main(void)
     {
         clock_t begin = clock();
 
-        /* Render here */
+        // Render here
         scene.render();
 
-        /* Swap front and back buffers */
+        // Swap front and back buffers
         glfwSwapBuffers(window);
 
         // Camera handle (mouse + key arrows)
         control.processEvents();
 
-        /* Poll for and process events */
+        // Poll for and process events
         glfwPollEvents();
 
+        // FPS block
         clock_t end = clock();
         double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
         if (elapsed_secs < 1.0 / maximum_fps) {
