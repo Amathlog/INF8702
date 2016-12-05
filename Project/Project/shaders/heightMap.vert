@@ -9,9 +9,11 @@ uniform float dx;
 uniform float dy;
 
 out vec2 texCoords;
+out vec3 pos;
 
 void main(){
-    texCoords = (vec2(vp) + halfEdgeLength * vec2(1.0)) / (2.0*halfEdgeLength);
+    texCoords = vp.xy * 0.5 + 0.5;
+    pos = vp;
     gl_Position = vec4(vp, 1.0);
 }
 

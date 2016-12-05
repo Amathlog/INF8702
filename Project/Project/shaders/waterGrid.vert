@@ -15,13 +15,13 @@ out float h;
 out vec4 fragColor;
 
 void main(){
-    vec2 texCoords = (vec2(vp) + halfEdgeLength * vec2(1.0)) / (2.0*halfEdgeLength);
+    vec2 texCoords = (vp.xy + halfEdgeLength) / (2.0 * halfEdgeLength);
     vec4 textureInfo = texture2D(heightMap, texCoords);
     fragColor = textureInfo;
     h = textureInfo.r;
     position = vp;
     normal = vec3(textureInfo.b, sqrt(1.0 - dot(textureInfo.ba, textureInfo.ba)), textureInfo.a);
-    vec3 newPosition = vec3(vp.xy, vp.z + h);
+    vec3 newPosition = vec3(vp.xy, vp.z);
     gl_Position = MVP * vec4(newPosition, 1.0);
 }
 

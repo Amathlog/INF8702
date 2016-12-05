@@ -29,6 +29,7 @@ private:
     void rotate();
     void keyRotate();
     void addWaterPerturbation();
+    glm::vec3 getMousePositionInWorldCoordinates();
 
     GLFWwindow* m_window;
     Scene* m_scene;

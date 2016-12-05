@@ -7,15 +7,11 @@ uniform vec3 perturbationPoint;
 uniform float perturbationValue;
 
 out vec2 texCoords;
-out float perturbation;
+out vec3 position;
 
 void main(){
-    texCoords = (vec2(vp) + halfEdgeLength * vec2(1.0)) / (2.0*halfEdgeLength);
-    if(perturbationPoint == vp){
-        perturbation = perturbationValue;
-    } else {
-        perturbation = 0;
-    }
+    texCoords = vp.xy * 0.5 + 0.5;
+    position = vp;
     gl_Position = vec4(vp, 1.0);
 }
 

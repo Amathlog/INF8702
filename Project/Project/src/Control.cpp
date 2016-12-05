@@ -64,7 +64,12 @@ void Control::setWindowAndScene(GLFWwindow* window, Scene* scene) {
 
 void Control::addWaterPerturbation() {
     if (glfwGetKey(m_window, GLFW_KEY_P) == GLFW_PRESS) {
-        m_grid->addPerturbation();
+        m_grid->addPerturbation(glm::vec3(0.0f, 0.0f, 0.0f));
+    }
+    if (glfwGetMouseButton(m_window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+        return;
+        std::cout << "Click : " << getMousePositionInWorldCoordinates().x << ", " << getMousePositionInWorldCoordinates().y << ", " << getMousePositionInWorldCoordinates().z << std::endl;
+        m_grid->addPerturbation(getMousePositionInWorldCoordinates());
     }
 }
 
@@ -76,4 +81,32 @@ void Control::processEvents() {
     rotate();
     keyRotate();
     addWaterPerturbation();
+}
+
+glm::vec3 Control::getMousePositionInWorldCoordinates() {
+    Camera camera = m_scene->getCamera();
+
+    int width, height;
+    glfwGetWindowSize(m_window, &width, &height);
+
+    double xPos, yPos;
+    glfwGetCursorPos(m_window, &xPos, &yPos);
+
+    GLfloat depth = 0.0f;
+    glReadPixels(floor(xPos), floor(height - yPos), 1, 1,GL_DEPTH_COMPONENT,GL_FLOAT,&depth);
+
+    std::cout << "z = " << depth << std::endl;
+
+    glm::mat4 invVP = glm::inverse(camera.getViewMatrix()) *  glm::inverse(camera.getProjectionMatrix());
+    glm::vec4 cursor{ 2.0f * float(xPos) / width - 1.0f, 2.0f * float(yPos) / height - 1.0f, depth, 1.0f };
+
+    glm::vec4 pos = invVP * cursor;
+
+    pos.w = 1.0 / pos.w;
+
+    pos.x *= pos.w;
+    pos.y *= pos.w;
+    pos.z *= pos.w;
+
+    return glm::vec3(pos);
 }

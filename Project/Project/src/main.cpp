@@ -26,7 +26,7 @@
 
 const unsigned int width = 1280;
 const unsigned int height = 720;
-const unsigned int maximum_fps = 20;
+const unsigned int maximum_fps = 60;
 
 int main(void)
 {
@@ -84,28 +84,18 @@ int main(void)
     Camera camera;
 
     // Set all its parameters
-    camera.setPosition(glm::vec3(4.0f, 3.0f, 3.0f));
+    camera.setPosition(glm::vec3(1.0f, 1.0f, 1.0f));
 
     // Add the camera to the scene
     scene.setCamera(camera);
 
-    // Create our triangle
-    //Triangle triangle(triangleShader);
-
-    // Add it to the scene
-    //scene.addRenderable(&triangle);
-
     // Create cube  
-    float cubeEdgeLength = 3.0f;
+    float cubeEdgeLength = 1.0f;
     Cube cube1(cubeShader, glm::vec3(0.0f, 0.0f, 0.0f), cubeEdgeLength);
     scene.addRenderable(&cube1);
-    /*Line line1(lineShader, glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f), 1);
-    scene.addRenderable(&line1);
-    Line line2(lineShader, glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f), 1);
-    scene.addRenderable(&line2);*/
 
     // Create watergrid
-    WaterGrid waterGrid(waterGridShader, glm::vec3(0.0f, 0.0f, 0.9f), 50, 50, cubeEdgeLength, cubeEdgeLength);
+    WaterGrid waterGrid(waterGridShader, glm::vec3(0.0f, 0.0f, 0.4f), 256, 256, cubeEdgeLength, cubeEdgeLength);
     waterGrid.setCube(&cube1);
     cube1.setWaterGrid(&waterGrid);
     scene.addRenderable(&waterGrid);
@@ -114,8 +104,6 @@ int main(void)
     Control& control = Control::getInstance();
     control.setWindowAndScene(window, &scene);
     control.setGrid(&waterGrid);
-
-    //glViewport(0, 0, width, height);
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window) && glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS)
