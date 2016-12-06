@@ -6,7 +6,7 @@
 #include <vector>
 #include <GL/glew.h>
 #include "Renderable.h"
-#include "glm\vec3.hpp"
+#include "glm/vec3.hpp"
 #include "Cube.h"
 #include "NuanceurProg.h"
 

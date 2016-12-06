@@ -250,3 +250,17 @@ paket-files/
 # JetBrains Rider
 .idea/
 *.sln.iml
+
+# QtCreator
+INF8702.creator
+INF8702.creator.user
+INF8702.files
+INF8702.includes
+INF8702.config
+
+# Cmake
+CMakeFiles
+CMakeCache.txt
+Makefile
+Project_INF8702
+cmake_install.cmake

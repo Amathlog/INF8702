@@ -5,7 +5,7 @@
 
 #include "NuanceurProg.h"
 #include "Camera.h"
-#include "glm\vec3.hpp"
+#include "glm/vec3.hpp"
 
 class Renderable : public Moveable{
 public:

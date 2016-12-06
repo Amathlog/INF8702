@@ -19,10 +19,15 @@
 #include "Camera.h"
 #include "Line.h"
 #include "../include/Control.h"
-#include "Watergrid.h"
+#include "WaterGrid.h"
 
 #include <ctime>
+
+#ifdef _WIN32
 #include <Windows.h>
+#else
+#include <unistd.h>
+#endif
 
 const unsigned int width = 1280;
 const unsigned int height = 720;
@@ -134,7 +139,11 @@ int main(void)
         clock_t end = clock();
         double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
         if (elapsed_secs < 1.0 / maximum_fps) {
+            #ifdef _WIN32
             Sleep(long((1.0 / maximum_fps - elapsed_secs) * 1000));
+            #else
+            usleep(long((1.0 / maximum_fps - elapsed_secs) * 1000000));
+            #endif
         }
     }
 
