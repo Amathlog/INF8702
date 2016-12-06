@@ -2,9 +2,11 @@
 
 \documentclass[a4paper,11pt,leqno]{article}
 
+
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 \usepackage[francais]{babel}
+\usepackage{lmodern}
 \usepackage{verbatim}
 \usepackage{graphicx}
 \usepackage{mathrsfs}
@@ -75,11 +77,11 @@ bindingoffset=0mm, top=20mm,bottom=20mm}
 
 \section*{Introduction}
 
-Le sujet retenu pour ce projet d'infographie est l'implémtentation d'un comportement réaliste de propagation d'onde dans un milieu aquatique. L'objectif du projet est de permettre l'intéraction avec une surface d'eau. Celà passe par les effets de lumières qui donne un air réaliste à l'eau, ainsi que l'ajout de perturbations (correspondant à des gouttes d'eau qui tombent sur la surface) et leur comportement au cours du temps.
+Le sujet retenu pour ce projet d'infographie est l'implémentation d'un comportement réaliste de propagation d'onde dans un milieu aquatique. L'objectif du projet est de permettre l'interaction avec une surface d'eau. Cela passe par les effets de lumières qui donnent un air réaliste à l'eau, ainsi que l'ajout de perturbations (correspondant à des gouttes d'eau qui tombent sur la surface) et leur comportement au cours du temps.
 
 \section{Le viewer}
 
-Les différents travaux pratiques nous donnaient déjà un viewer fonctionnel. N'ayant pas fait le cours d'infographie de base, on voulait vraiment avoir un viewer qui soit codé par nos soins de A à Z. Comprendre comment construire notre piepline graphique ainsi que la gestion de la caméra. Pour celà, nous avons codé en C++ en tentant au maximum de factoriser et encapsuler notre code. Celà passe par l'utilisation de l'héritage. Ainsi par exemple, un objet de la scène peut être bougé (\emph{class Moveable}) comme notre caméra ou tout autre objet de la scène, avec comme attribut principal leur position dans le monde. Cependant, la caméra n'est pas rendue à l'écran. On a donc une classe \emph{Renderable} qui définit un objet qui va être rendu à l'écran. Ainsi notre scène contient une camera et une liste d'objets à rendre.
+Les différents travaux pratiques nous donnaient déjà un viewer fonctionnel. N'ayant pas fait le cours d'infographie de base, on voulait vraiment avoir un viewer qui soit codé par nos soins de A à Z et ainsi comprendre comment construire notre piepline graphique ainsi que la gestion de la caméra. Pour cela, nous avons codé en C++ en tentant au maximum de factoriser et encapsuler notre code. Cela passe par l'utilisation de l'héritage. Ainsi par exemple, un objet de la scène peut être bougé (\emph{class Moveable}) comme notre caméra ou tout autre objet de la scène, avec comme attribut principal leur position dans le monde. Cependant, la caméra n'est pas rendue à l'écran. On a donc une classe \emph{Renderable} qui définit un objet qui va être rendu à l'écran. Ainsi notre scène contient une camera et une liste d'objets à rendre.
 
 La camera peut bouger en gardant un point de focus fixe. Elle tourne alors sur une sphère et permet de regarder la scène sous différents points de vues. Si l'on sélectionne un point en dehors du cube, on peut la faire bouger (si la souris est dans le cube, la caméra reste fixe). Elle peut aussi zoomer/dezoomer avec la molette de la souris.
 
@@ -102,7 +104,7 @@ où $\nabla^2 = \Delta $ représente l'opérateur laplacien et $c$ la célérit�
 
 \subsection{Résolution numérique}
 
-Bien entendu cette équation est dans le domaine continue. Elle doit donc être discrétisée pour pouvoir l'utiliser. Pour cela, on utilise la formule du laplacien discret. Si l'on prend comme pas de mesure $dx$ et $dy$, le calcul du laplacien est :
+Bien entendu cette équation est dans le domaine continue. Elle doit donc être discrétisée pour pouvoir être utilisée. Pour cela, on utilise la formule du laplacien discret. Si l'on prend comme pas de mesure $dx$ et $dy$, le calcul du laplacien est :
 
 \[
 	\nabla \overrightarrow{E}(x,y,t) = \overrightarrow{E}(x + dx, y, t) +
@@ -125,7 +127,7 @@ Les équations finales sont donc :
 \end{cases}
 \]
 
-Le coefficient $0.995$ correspond à la perte d'énergie de l'onde, cela assure que l'onde ne va pas se propager indéfiniment mais va s'atténuer au cours du temps. Plus l'on réduit cette valeur, moins l'onde se propage loin.
+Le coefficient $0.995$ correspond à la perte d'énergie de l'onde ; cela assure que l'onde ne va pas se propager indéfiniment mais va s'atténuer au cours du temps. Plus l'on réduit cette valeur, moins l'onde se propage loin.
 
 \section{Implémentation en OpenGL}
 
@@ -135,17 +137,17 @@ Tout d'abord, il a fallu s'assurer de pouvoir représenter une surface en OpenGL
 
 Dans le projet, on peut changer la granularité de notre grille (le nombre de subdivisions) pour augmenter la résolution de notre modélisation.
 
-Le but est ensuite de savoir de combien déplacer chaque sommet de la grille. Pour cela on implémente une \emph{heightmap} qui est une texture et l'on fait du \emph{Displacement Mapping} à l'aide d'une texture
+Le but est ensuite de savoir de combien déplacer chaque sommet de la grille. Pour cela on implémente une \emph{heightmap} qui est une texture et l'on fait du \emph{Displacement Mapping} à l'aide d'une texture.
 
 \subsection{Displacement Mapping}
 
-Notre texture de déplacement est une texture qui stocke les valeurs de déplacement sur le channel rouge (Première composante de RGBA). Les autres channels seront utilisés plus tard pour mettre à jour notre texture.
+Notre texture de déplacement est une texture qui stocke les valeurs de déplacement sur le channel rouge (première composante de RGBA). Les autres channels seront utilisés plus tard pour mettre à jour notre texture.
 
 Cette texture \emph{mappe} donc chaque vertex en lui associant un déplacement positif ou négatif. Pour ne pas s'encombrer de conversion, la texture stocke des nombres flottants sur 32 bits (chaque sommet a donc 4 composantes : RGBA qui sont chacune représentée par un flottant).
 
-Sachant qu'a chaque pixel de notre texture, un vertex lui est associé, la texture fait la taille de la grille. Ainsi si la grille est 50x50, la texture est aussi 50x50 pixels.
+Sachant qu'à chaque pixel de notre texture, un vertex lui est associé, la texture fait la taille de la grille. Ainsi si la grille est 50x50, la texture est aussi 50x50 pixels.
 
-Pour appliquer le déplacement à chaque sommet, le nuanceur de sommet de notre grille prends en variable uniforme la \emph{heightmap} et sample la valeur correspondant au vertex et applique cette valeur sur ce sommet.
+Pour appliquer le déplacement à chaque sommet, le nuanceur de sommet de notre grille prend en variable uniforme la \emph{heightmap} et sample la valeur correspondant au vertex et applique cette valeur sur ce sommet.
 
 \subsection{Mise à jour de la texture}
 
@@ -153,17 +155,17 @@ La lecture de la texture étant faite, il faut maintenant appliquer nos équatio
 
 Pour cela, on va écrire dans une nouvelle texture les nouvelles valeurs puis \emph{swapper} les deux textures pour que la nouvelle texture devienne la texture que l'on va lire.
 
-Pour écrire dans une texture, on utilise la technique qui a été vue dans le TP4, qui est d'utiliser un Framebuffer auquel on associe une texture dans laquelle écrire. Ainsi à chaque frame de notre simulation, l'on met à jour la texture puis l'on rend notre grille.
+Pour écrire dans une texture, on utilise la technique qui a été vue dans le TP4, qui est d'utiliser un \emph{Framebuffer} auquel on associe une texture dans laquelle écrire. Ainsi à chaque frame de notre simulation, on met à jour la texture puis on rend notre grille.
 
-Le rendu de notre texture n'a pas besoin de ce faire sur une grille. Il suffit de rendre notre texture sur un simple quad. La texture dans laquelle on écrit doit bien entendu être de même dimension que la texture que l'on lit. On calcule donc une nouvelle couleur qui va être écrite dans notre texture.
+Le rendu de notre texture n'a pas besoin de se faire sur une grille. Il suffit de rendre notre texture sur un simple quad. La texture dans laquelle on écrit doit bien entendu être de même dimension que la texture que l'on lit. On calcule donc une nouvelle couleur qui va être écrite dans notre texture.
 
-Un nuanceur a part est donc nécessaire pour écrire dans cette texture. Le nuanceur de sommets est trivial, il ne transforme que les positions du quad (comprises entre $-1$ et $1$ en $x$ et en $y$) en coordonnées normalisées entre $0$ et $1$ (dans la variable texCoords).
+Un nuanceur à part est donc nécessaire pour écrire dans cette texture. Le nuanceur de sommets est trivial, il ne transforme que les positions du quad (comprises entre $-1$ et $1$ en $x$ et en $y$) en coordonnées normalisées entre $0$ et $1$ (dans la variable texCoords).
 
 La partie intéressante est donc dans le nuanceur de fragments. Pour chaque pixel de notre texture, on sample les valeurs dans le channel rouge (la valeur de déplacement on le rappelle) des 4 pixels environnants ($+dx$, $-dx$, $+dy$ et $-dy$) ainsi que la valeur de notre pixel courant pour appliquer la formule du laplacien. 
 
 Comme on a besoin aussi de garder les valeurs de vitesses $\frac{\partial \overrightarrow{E}}{\partial t}$, on utilise un autre des 4 channels, le channel vert.
 
-La suite suit exactement les formules explicitées précédemment. Il est juste à noter que le quotient $\frac{c^2}{dx dy}$ a été réduit à la simple valeur $c$ dans les équations (qui peut être modulée à souhait dans la classe \emph{WaterGrid}). Numériquement cela ne change rien au problème.
+La suite suit exactement les formules explicitées précédemment. A noter que le quotient $\frac{c^2}{dx dy}$ a été réduit à la simple valeur $c$ dans les équations (qui peut être modulée à souhait dans la classe \emph{WaterGrid}). Numériquement cela ne change rien au problème.
 
 Enfin, les deux derniers channels permettent de garder la valeur de la normale en chaque vertex. Une normale est normalement définie par trois composantes. Cependant deux valeurs ici nous suffisent car l'on garde un vecteur normal unitaire. La 3ème valeur se déduit donc des 2 autres en respectant la norme unitaire.
 
@@ -183,7 +185,7 @@ Pour obtenir la normale, on effectue alors le produit vectoriel $\overrightarrow
 
 Enfin, on stocke les valeurs pour $x$ et $z$ sur les 2 channels qui nous reste : bleu et alpha.
 
-Ces valeurs sont \emph{clamp} en dessous de $0.5$ car les valeurs étant trop petites, on remarquait des artéfacts sur notre grille. En coupant les valeurs inférieures à $0.5$ les artéfacts ont disparus et les normales restaient cohérentes.
+Ces valeurs sont \emph{clamp} en dessous de $0.5$ car les valeurs étant trop petites, on remarquait des artéfacts sur notre grille. En coupant les valeurs inférieures à $0.5$ les artéfacts ont disparu et les normales restaient cohérentes.
 
 \subsection{Ajout de perturbation}
 
@@ -193,11 +195,11 @@ Le nuanceur qui s'occupe de faire ça est très similaire à celui de mise à jo
 
 Pour ce qui est de la souris, obtenir le point sur la surface n'est pas trivial. Pour cela il faut transformer les coordonnées de notre pointeur de souris du référentiel de la fenêtre vers le référentiel du monde. Il faut donc faire la manipulation inverse que celle que l'on effectue pour afficher notre scène à l'écran.
 
-Lorsque l'on clique sur la souris, les coordonnées sont récupérées et sont comprises entre $(0, 0)$ et $(largeur, hauteur)$. Il faut de plus récupérer la valeur en $z$ qui est stocké dans un \emph{depth buffer} interne à OpenGL. On récupère alors la valeur en $z$ du pixel sur lequel on clique.
+Lorsque l'on clique sur la souris, les coordonnées sont récupérées et sont comprises entre $(0, 0)$ et $(largeur, hauteur)$. Il faut de plus récupérer la valeur en $z$ qui est stockée dans un \emph{depth buffer} interne à OpenGL. On récupère alors la valeur en $z$ du pixel sur lequel on clique.
 
-On obtient alors le vecteur position $\overrightarrow{p} = (x,y,z,w)$ avec $w=1$
+On obtient alors le vecteur position $\overrightarrow{p} = (x,y,z,w)$ avec $w=1$.
 
-Ensuite, on doit normaliser notre coordonnées (obtenir les \emph{normalized device coordinates} ou \emph{NDC}). Les formules sont disponibles sur le wiki d'OpenGL et sont :
+Ensuite, on doit normaliser nos coordonnées (obtenir les \emph{normalized device coordinates} ou \emph{NDC}). Les formules sont disponibles sur le wiki d'OpenGL et sont :
 
 \[
 \begin{cases}
@@ -207,7 +209,7 @@ Ensuite, on doit normaliser notre coordonnées (obtenir les \emph{normalized dev
 \end{cases}
 \]
 
-avec $far = 1$ et $near = 0$ les valeurs par défaut de clipping d'OpenGL.
+avec $far = 1$ et $near = 0$, les valeurs par défaut de clipping d'OpenGL.
 
 A partir de là, il faut exécuter la transformation inverse. Comme dans le processus initial, il faut multiplier par la matrice de projection $P$ et de vue $V$, on effectue ici l'inverse.
 
@@ -233,17 +235,17 @@ Maintenant que tout le \emph{displacement} est implémenté, il faut donner à l
 
 Sans l'eau, notre vue voit le cube texturé. Avec l'eau, il faut que ce que l'on voit à travers l'eau soit "décalé" (qui est l'effet optique de la réfraction). Le calcul du rayon réfracté est plutôt facile, étant donné que GLSL nous donne une fonction \emph{refract}. Il suffit donc d'avoir comme rayon incident notre vecteur vue et la normale associée au fragment que l'on process.
 
-Le plus compliqué est de savoir où se rayon va taper sur notre cube. Car on veut pour le fragment que l'on process sur notre grille qu'il affiche la texture du cube.
+Le plus compliqué est de savoir où ce rayon va taper sur notre cube. Car on veut que le fragment que l'on process sur notre grille affiche la texture du cube.
 
-Pour cela, on fait une simplification de lancer de rayon sur GPU, car l'on connait beaucoup de variables (qu'il aurait été plus compliqué de faire un lancer de rayon complet sur GPU).
+Pour cela, on fait une simplification de lancer de rayon sur GPU, car l'on connait beaucoup de variables (cela aurait été plus compliqué de faire un lancer de rayon complet sur GPU).
 
-Ainsi pour chaque fragment, on calcule l'intersection entre le rayon refacté et le plan inférieur du cube (le fond de la piscine). Si le point d'intersection est sur la face inférieure, on sample la texture du cube à cet endroit là et l'on a la couleur de notre pixel sur notre grille.
+Ainsi pour chaque fragment, on calcule l'intersection entre le rayon réfracté et le plan inférieur du cube (le fond de la piscine). Si le point d'intersection est sur la face inférieure, on sample la texture du cube à cet endroit là et l'on a la couleur de notre pixel sur notre grille.
 
-De même si le point d'intersection n'est pas sur la face inférieure mais avec des coordonnées en $x$ et/ou $y$ plus grandes que la largeur du cube, cela veut dire que le rayon a tapé une des faces latérales du cube. Lorsque l'on sait quelle face on tape, on relance l'algorithme d'intersection avec la face voulue.
+De même si le point d'intersection n'est pas sur la face inférieure mais avec des coordonnées en $x$ ou $y$ plus grandes que la largeur du cube, cela veut dire que le rayon a tapé une des faces latérales du cube. Lorsque l'on sait quelle face on tape, on relance l'algorithme d'intersection avec la face voulue.
 
 Il reste tout de même un problème lorsque et $x$ et $y$ sont plus grandes que la largeur du cube. Quelle face prendre dans ce cas là ?
 
-Il faut calculer une \emph{frontière} qui va séparer les cas. Cette frontière est calculée cette fois ci on calculant l'intersection entre le plan inférieur et le vecteur d'origine le vertex de la grille et d'arrivée un point sur l'arête ambigüe. Pour donner un exemple, si $x$ et $y$ sont tous les deux trop grands pour être sur la face inférieure, l'arête que l'on va utiliser est celle qui se situe en $(\frac{c}{2}, \frac{c}{2})$, $c$ étant la longueur du côté du cube.
+Il faut calculer une \emph{frontière} qui va séparer les cas. Cette frontière est calculée cette fois ci en calculant l'intersection entre le plan inférieur et le vecteur d'origine la caméra et d'arrivée un point sur l'arête ambigüe. Pour donner un exemple, si $x$ et $y$ sont tous les deux trop grands pour être sur la face inférieure, l'arête que l'on va utiliser est celle qui se situe en $(\frac{c}{2}, \frac{c}{2})$, $c$ étant la longueur du côté du cube.
 
 Ce point d'intersection nous donne la frontière qui est la droite passant par ce point et le coin inférieur de l'arête ambigüe (dans le cas précédent, le coin est aux coordonnées $(\frac{c}{2}, \frac{c}{2}, -\frac{c}{2})$)
 
@@ -258,7 +260,7 @@ Précédemment on a calculé les normales pour chaque vertex de notre grille. Ce
 Il est possible de faire varier les valeurs de simulations si l'on modifie les valeurs de perturbation et de célérité dans le fichier \emph{WaterGrid.h}. Il est possible aussi de changer la résolution de la texture (et donc la granularité de notre grille) ainsi que le nombre de FPS maximum dans les constantes en haut du fichier \emph{main.cpp}.
 
 Actuellement les performances sont très bonnes et avec une grille de 256x256 on atteint aisément les 60fps. 
-A titre de comparaison, toutes les équations et simulations étaient fait sur le CPU (pour tester la véracité de nos équations), et n'atteignait le 60fps que si la grille faisait 50x50.
+A titre de comparaison, toutes les équations et simulations étaient faites sur le CPU (pour tester la véracité de nos équations), et n'atteignait le 60fps que si la grille faisait 50x50.
 
 A noter que la granularité peut encore être augmentée sans perte visible de FPS. Le temps d'initialisation sera par contre plus long (initialiser tous les buffers de vertex + texture) et la simulation sera plus lente à se propager (car $dx$ et $dy$ sont plus petits).
 
@@ -272,6 +274,6 @@ La satisfaction d'avoir pu tout coder de A à Z aussi est très appréciable et 
 
 La mise en place a cependant été longue, et on avait peur de ne pas être capable de fournir le résultat sur GPU. Etant donné que cette partie nous a pris énormément de temps, les autres fonctionnalités prévues (comme les caustiques ou l'interaction avec d'autres objets) n'a pu être faites, mais on tentera tout du moins de continuer le projet après la date de rendu pour obtenir un projet abouti comme on l'entendait au début.
 
-En conclusion, bien que tout n'est pas présent, la simulation a vraiment belle allure et nous conforte sur nos connaissances acquises tout au long de cette session.
+En conclusion, bien que tout ne soit pas présent, la simulation a vraiment belle allure et nous conforte sur nos connaissances acquises tout au long de cette session.
 
 \end{document}
