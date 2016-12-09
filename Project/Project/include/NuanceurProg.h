@@ -15,6 +15,7 @@
 #include <vector>
 #include "stdlib.h"
 #include "assert.h"
+#include <string>
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -74,7 +75,7 @@ public:
    /// constructeur par défaut : utilisé pour créer un PROGRAMME VIDE de nuanceur (0)
    CNuanceurProg(void);
    /// constructeur spécifique : utilisé pour créer un PROGRAMME DE NUANCEURS.
-   CNuanceurProg(char* nuanceurSommetsStr, char* nuanceurFragmentsStr, bool compilerImmediatement);
+   CNuanceurProg(std::string nuanceurSommetsStr, std::string nuanceurFragmentsStr, bool compilerImmediatement);
    /// destructeur par défaut.
    ~CNuanceurProg(void);
 
@@ -101,19 +102,19 @@ public:
 
 private:
    /// Compile et lie les nuanceurs définis à la construction
-   void compilerEtLierNuanceurs(char* nsStr, char* nfStr);
+   void compilerEtLierNuanceurs(std::string nsStr, std::string nfStr);
 
    /// Affiche les informations de compilation d'un nuanceur
-   void afficherShaderInfoLog(GLuint obj,  char* message);
+   void afficherShaderInfoLog(GLuint obj,  std::string message);
 
    /// Affiche les informations de compilation et d'édition de liens (link) du programme de nuanceurs
-   void afficherProgramInfoLog(GLuint obj, char* message);
+   void afficherProgramInfoLog(GLuint obj, std::string message);
 
    /// la chaîne de caractères du nom de fichier du nuanceur de sommets
-   char* nuanceurSommetsStr_;
+   std::string nuanceurSommetsStr_;
 
    /// la chaîne de caractères du nom de fichier du nuanceur de fragments
-   char* nuanceurFragmentsStr_;
+   std::string nuanceurFragmentsStr_;
 
    /// la liste des uniforms float requis par les nuanceurs
    std::vector<floatUniform> floatUniforms_;

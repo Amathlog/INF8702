@@ -1,4 +1,4 @@
-#version 400 core
+#version 450 core
 
 uniform sampler2D cubeTexture;
 uniform sampler2D heightMap;
@@ -8,7 +8,7 @@ uniform float halfEdgeLength;
 in vec3 position;
 in vec3 normal;
 uniform vec3 eye;
-in float oh;
+in float h;
 in vec4 fragColor;
 
 vec3 getIntersection(vec3 position, vec3 ray, vec3 planNormal, float halfEdgeLength){
@@ -61,7 +61,7 @@ vec2 getTexCoords(vec3 position, vec3 ray, float halfEdgeLength){
 void main(){
     vec3 incomingRay = position - eye;
     vec3 refractedRay = refract(incomingRay, normal, 1.0/1.3330);
-    vec3 newPosition = vec3(position.xy, position.z + oh);
-    color = texture(cubeTexture, getTexCoords(newPosition, refractedRay, halfEdgeLength))  * vec4(0.4, 0.9, 1.0, 1.0);
+    vec3 newPosition = vec3(position.xy, position.z + h);
+    color = texture2D(cubeTexture, getTexCoords(newPosition, refractedRay, halfEdgeLength))  * vec4(0.4, 0.9, 1.0, 1.0);
     //color = 50.0 * vec4(-fragColor.r, fragColor.r, 0, 1);
 }

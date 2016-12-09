@@ -21,7 +21,6 @@ void Control::rotate() {
     if (glfwGetMouseButton(m_window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
         // If we are not clicking outside the cube, do nothing
         float zBuffer = getMousePositionInWorldCoordinates().z;
-        std::cout << "z = " << zBuffer << std::endl;
         if (abs(zBuffer) <= 10.0f && !m_draging)
             return;
 
@@ -79,15 +78,12 @@ void Control::addWaterPerturbation() {
         m_perturbated = true;
         m_grid->addPerturbation(m_grid->getPosition());
     }
-    else if(glfwGetKey(m_window, GLFW_KEY_P) == GLFW_RELEASE){
-        m_perturbated = false;
-    }
 
     if (glfwGetMouseButton(m_window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && !m_perturbated) {
         m_perturbated = true;
         m_grid->addPerturbation(getMousePositionInWorldCoordinates());
     }
-    else if (glfwGetMouseButton(m_window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE) {
+    if (glfwGetMouseButton(m_window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE && glfwGetKey(m_window, GLFW_KEY_P) == GLFW_RELEASE) {
         m_perturbated = false;
     }
 }

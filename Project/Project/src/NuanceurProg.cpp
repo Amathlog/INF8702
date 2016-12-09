@@ -55,11 +55,11 @@ CNuanceurProg::CNuanceurProg(void)
 ///  @date   2007-12-12
 ///
 ///////////////////////////////////////////////////////////////////////////////
-CNuanceurProg::CNuanceurProg(char* nuanceurSommetsStr, char* nuanceurFragmentsStr, bool compilerMaintenant) :
+CNuanceurProg::CNuanceurProg(std::string nuanceurSommetsStr, std::string nuanceurFragmentsStr, bool compilerMaintenant) :
 estCompileEtLie_(false)
 {
    // s'assurer qu'au moins UN des deux nuanceurs est défini
-   assert(!((nuanceurSommetsStr == NULL) && (nuanceurFragmentsStr == NULL)));
+   assert(nuanceurSommetsStr != "" && nuanceurFragmentsStr != "");
    
    // indiquer que le programme de nuanceurs n'est pas vide
    estVide_ = false;
@@ -195,7 +195,7 @@ void CNuanceurProg::uniform1(char* nom, float v)
 ///  @date   2007-12-12
 ///
 ///////////////////////////////////////////////////////////////////////////////
-void CNuanceurProg::afficherShaderInfoLog(GLuint obj, char* message)
+void CNuanceurProg::afficherShaderInfoLog(GLuint obj, std::string message)
 {
 	int infologLength = 0;
 	int charsWritten  = 0;
@@ -207,7 +207,7 @@ void CNuanceurProg::afficherShaderInfoLog(GLuint obj, char* message)
 	if (infologLength > 1)
 	{
         // afficher le message d'en-tête
-        printf("%s\n", message);
+        std::cout << message << std::endl;
 		infoLog = (char *)malloc(infologLength);
 		glGetShaderInfoLog(obj, infologLength, &charsWritten, infoLog);
 		printf("%s\n",infoLog);
@@ -235,7 +235,7 @@ void CNuanceurProg::afficherShaderInfoLog(GLuint obj, char* message)
 ///  @date   2007-12-12
 ///
 ///////////////////////////////////////////////////////////////////////////////
-void CNuanceurProg::afficherProgramInfoLog(GLuint obj, char* message)
+void CNuanceurProg::afficherProgramInfoLog(GLuint obj, std::string message)
 {
 	int infologLength = 0;
 	int charsWritten  = 0;
@@ -247,7 +247,7 @@ void CNuanceurProg::afficherProgramInfoLog(GLuint obj, char* message)
 	if (infologLength > 1)
 	{
         // afficher le message d'en-tête
-        printf("%s\n", message);
+        std::cout << message << std::endl;
 		infoLog = (char *)malloc(infologLength);
 		glGetProgramInfoLog(obj, infologLength, &charsWritten, infoLog);
 		printf("%s\n",infoLog);
@@ -273,7 +273,7 @@ void CNuanceurProg::afficherProgramInfoLog(GLuint obj, char* message)
 ///  @date   2007-12-12
 ///
 ///////////////////////////////////////////////////////////////////////////////
-void CNuanceurProg::compilerEtLierNuanceurs(char* nsStr, char* nfStr) 
+void CNuanceurProg::compilerEtLierNuanceurs(std::string nsStr, std::string nfStr)
 {	
    GLuint nuanceurSommets;
    GLuint nuanceurFragments;
@@ -282,9 +282,9 @@ void CNuanceurProg::compilerEtLierNuanceurs(char* nsStr, char* nfStr)
     std::string nf;
 
 	// création du NUANCEUR DE SOMMETS (si spécifié)
-   if (nsStr) {
+   if (nsStr != "") {
       // indiquer la progression...
-      printf("Compiling vertex shader: %s \n", nsStr);
+      std::cout << "Compiling vertex shader: " + nsStr << std::endl;
 
       // créer le nuanceur en GLSL
       nuanceurSommets = glCreateShader(GL_VERTEX_SHADER);
@@ -302,9 +302,9 @@ void CNuanceurProg::compilerEtLierNuanceurs(char* nsStr, char* nfStr)
 
 
    // création du NUANCEUR DE FRAGMENTS (si spécifié)
-   if (nfStr) {
+   if (nfStr != "") {
       // indiquer la progression...
-      printf("Compiling fragment shader: %s \n", nfStr);
+      std::cout << "Compiling fragment shader: " + nsStr << std::endl;
 
       // créer le nuanceur en GLSL
       nuanceurFragments = glCreateShader(GL_FRAGMENT_SHADER);

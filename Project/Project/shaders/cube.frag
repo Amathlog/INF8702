@@ -1,4 +1,4 @@
-#version 400 core
+#version 450 core
 
 out vec4 color;
 
@@ -18,5 +18,5 @@ void main(){
     } else {
         fragColor = vec4(1.0);
     }
-  color = texture(Texture, fragTex) * fragColor;
+  color = texture2D(Texture, fragTex) * fragColor;
 }

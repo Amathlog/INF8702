@@ -1,4 +1,4 @@
-#version 400 core
+#version 450 core
 
 layout(location = 0) in vec3 vp;
 
@@ -21,7 +21,7 @@ void main(){
     h = textureInfo.r;
     position = vp;
     normal = vec3(textureInfo.b, sqrt(1.0 - dot(textureInfo.ba, textureInfo.ba)), textureInfo.a);
-    vec3 newPosition = vec3(vp.xy, vp.z);
+    vec3 newPosition = vec3(vp.xy, vp.z + h);
     gl_Position = MVP * vec4(newPosition, 1.0);
 }
 
