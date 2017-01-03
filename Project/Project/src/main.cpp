@@ -19,10 +19,15 @@
 #include "Camera.h"
 #include "Line.h"
 #include "../include/Control.h"
-#include "Watergrid.h"
+#include "WaterGrid.h"
 
 #include <ctime>
+
+#ifdef _WIN32
 #include <Windows.h>
+#else
+#include <unistd.h>
+#endif
 
 const unsigned int width = 1280;
 const unsigned int height = 720;
@@ -39,8 +44,9 @@ int main(void)
     if (!glfwInit())
         return -1;
 
+    glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
     /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(width, height, "Hello World", NULL, NULL);
+    window = glfwCreateWindow(width, height, "Project", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
@@ -57,16 +63,16 @@ int main(void)
     }
 
     // Check if OpenGL 4.0 OK
-    if (glewIsSupported("GL_VERSION_4_0"))
-        std::cout << "Ready for OpenGL 4.0" << std::endl << std::endl;
+    if (glewIsSupported("GL_VERSION_4_5"))
+        std::cout << "Ready for OpenGL 4.5" << std::endl << std::endl;
     else {
-        std::cerr << "OpenGL 4.0 not supported" << std::endl << std::endl;
+        std::cerr << "OpenGL 4.5 not supported" << std::endl << std::endl;
         exit(1);
     }
 
     // Specifier le context openGL
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     glViewport(0, 0, width, height);
@@ -133,7 +139,11 @@ int main(void)
         clock_t end = clock();
         double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
         if (elapsed_secs < 1.0 / maximum_fps) {
+            #ifdef _WIN32
             Sleep(long((1.0 / maximum_fps - elapsed_secs) * 1000));
+            #else
+            usleep(long((1.0 / maximum_fps - elapsed_secs) * 1000000));
+            #endif
         }
     }
 

@@ -73,7 +73,6 @@ public:
 
         // OpenGL has now copied the data. Free our own version
         delete[] data;
-        fclose(file);
 
         // Poor filtering, or ...
         //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);

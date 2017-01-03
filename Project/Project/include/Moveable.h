@@ -1,8 +1,8 @@
 #ifndef _MOVEABLE_H_
 #define _MOVEABLE_H_
 
-#include "glm\vec3.hpp"
-#include "glm\mat4x4.hpp"
+#include "glm/vec3.hpp"
+#include "glm/mat4x4.hpp"
 
 class Moveable {
 public:

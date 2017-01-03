@@ -5,7 +5,7 @@
 
 #include <GL/glew.h>
 #include "Renderable.h"
-#include "glm\vec3.hpp"
+#include "glm/vec3.hpp"
 
 class Line : public Renderable {
 
