@@ -207,7 +207,7 @@ Ensuite, on doit normaliser notre coordonnées (obtenir les \emph{normalized dev
 \end{cases}
 \]
 
-avec $far = 1$ et $near = 0$ les valeurs par défaut de clipping d'OpenGL.
+avec $far = 1$ et $near = 0$ les valeurs par défaut de clipping d'OpenGL. On remarque que $y$ est inversé par rapport à $x$. C'est parce que le sens de l'axe $y$ dans glfw est l'inverse de celui d'OpenGL. Il faut donc faire cette transformation en plus.
 
 A partir de là, il faut exécuter la transformation inverse. Comme dans le processus initial, il faut multiplier par la matrice de projection $P$ et de vue $V$, on effectue ici l'inverse.
 
