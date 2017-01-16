@@ -9,6 +9,8 @@ It's a water simulation, with heightmap algorithm, in order to cause disturbance
 
 It also contain a 3D viewer coded from scratch (some part were already coded such as shader parsing).
 
+It was coded with C++ and OpenGL and is compatible with Windows and Linux (MacOX was not tested but *should* work)
+
 It covers :
 - Texturing
 - Refraction
